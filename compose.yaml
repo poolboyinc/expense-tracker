@@ -1,0 +1,7 @@
+﻿services:
+  expensetracker.webapi:
+    image: expensetracker.webapi
+    build:
+      context: .
+      dockerfile: ExpenseTracker.WebApi/Dockerfile
+
