@@ -8,12 +8,13 @@ public interface IExpenseRepository
     Task AddAsync(Expense expense);
     Task UpdateAsync(Expense expense);
     Task DeleteAsync(Expense expense);
+    public Task<ExpenseGroup?> GetGroupByIdAsync(int groupId);
     
     Task<ICollection<Expense>> GetExpensesAsync(
+        string userId,
         int? groupId,
         string? searchTerm,
         int pageNumber,
-        int pageSize,
-        string sortBy
+        int pageSize
         );
 }

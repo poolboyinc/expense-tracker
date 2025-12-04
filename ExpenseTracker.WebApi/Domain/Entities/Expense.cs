@@ -14,5 +14,7 @@ public class Expense
 
     public ExpenseGroup ExpenseGroup { get; set; } = default!;
     
-    public bool IsScheduled { get; set; };
+    public bool IsScheduled { get; set; }
+    
+    public string UserId { get; set; } = string.Empty; 
 }
