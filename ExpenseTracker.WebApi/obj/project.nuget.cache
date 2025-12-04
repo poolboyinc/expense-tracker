@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "dgSpecHash": "Q3GNJZDauOk=",
-  "success": true,
+  "dgSpecHash": "oqEfKr75eDk=",
+  "success": false,
   "projectFilePath": "C:\\Users\\vukasin.macic\\RiderProjects\\ExpenseTracker\\ExpenseTracker.WebApi\\ExpenseTracker.WebApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vukasin.macic\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
@@ -56,10 +56,9 @@
   "logs": [
     {
       "code": "NU1510",
-      "level": "Warning",
-      "message": "PackageReference Microsoft.Extensions.DependencyInjection will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "level": "Error",
+      "message": "Warning As Error: PackageReference Microsoft.Extensions.DependencyInjection will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
       "projectPath": "C:\\Users\\vukasin.macic\\RiderProjects\\ExpenseTracker\\ExpenseTracker.WebApi\\ExpenseTracker.WebApi.csproj",
-      "warningLevel": 1,
       "filePath": "C:\\Users\\vukasin.macic\\RiderProjects\\ExpenseTracker\\ExpenseTracker.WebApi\\ExpenseTracker.WebApi.csproj",
       "libraryId": "Microsoft.Extensions.DependencyInjection",
       "targetGraphs": [

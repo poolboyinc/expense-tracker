@@ -22,6 +22,7 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 
+//add income as a service
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
