@@ -39,13 +39,29 @@ public class ApplicationDbContext : DbContext
             .HasOne<User>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .IsRequired();
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade); 
         
         modelBuilder.Entity<Income>()
             .HasOne<User>()
             .WithMany()
             .HasForeignKey(i => i.UserId)
-            .IsRequired();
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
         
+        modelBuilder.Entity<ExpenseGroup>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(g => g.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade); 
+            
+        // ✅ NOVO: IncomeGroup <-> User
+        modelBuilder.Entity<IncomeGroup>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(g => g.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade); 
     }
 }

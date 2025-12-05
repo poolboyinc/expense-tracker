@@ -19,4 +19,6 @@ public interface IUserService
     Task<List<User>> GetAllUsersAsync();
     
     Task<bool> DeleteUserAsync(string id);
+    
+    string GetCurrentUserId();
 }
