@@ -13,4 +13,10 @@ public interface IUserService
     
     
     Task<bool> UserExistsAsync(string userId);
+    
+    Task<User> UpdateUserAsync(User user);
+    
+    Task<List<User>> GetAllUsersAsync();
+    
+    Task<bool> DeleteUserAsync(string id);
 }

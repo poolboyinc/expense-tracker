@@ -37,7 +37,7 @@ public class UsersController : ControllerBase
     {
         if (string.IsNullOrEmpty(input.Id))
         {
-            return BadRequest("ID korisnika je obavezan.");
+            return BadRequest("The ID field is required.");
         }
         
         var user = new User
@@ -67,9 +67,33 @@ public class UsersController : ControllerBase
 
         if (user == null)
         {
-            return NotFound($"Korisnik sa ID-jem {id} nije pronađen.");
+            return NotFound($"Users not found");
         }
 
         return Ok(user);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<User>>> GetAllUsers()
+    {
+        List<User> userList = await _userService.GetAllUsersAsync();
+
+        return Ok(userList);
+    }
+    
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)] 
+    [ProducesResponseType(StatusCodes.Status404NotFound)] 
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        var deleted = await _userService.DeleteUserAsync(id);
+
+        if (!deleted)
+        {
+            return NotFound($"User with ID '{id}' not found.");
+        }
+        
+        return NoContent(); 
     }
 }

@@ -4,11 +4,11 @@ namespace ExpenseTracker.WebApi.Domain.Interfaces;
 
 public interface IExpenseRepository
 {
-    Task<Expense> GetByIdAsync(int id);
+    Task<Expense?> GetByIdAsync(int id);
     Task AddAsync(Expense expense);
     Task UpdateAsync(Expense expense);
     Task DeleteAsync(Expense expense);
-    public Task<ExpenseGroup?> GetGroupByIdAsync(int groupId);
+    Task<ExpenseGroup?> GetGroupByIdAsync(int groupId);
     
     Task<ICollection<Expense>> GetExpensesAsync(
         string userId,
@@ -17,4 +17,6 @@ public interface IExpenseRepository
         int pageNumber,
         int pageSize
         );
+    
+    Task<int> CountExpensesInGroupAsync(int groupId, string userId);
 }

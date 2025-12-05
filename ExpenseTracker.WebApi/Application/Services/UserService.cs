@@ -58,4 +58,21 @@ public class UserService : IUserService
     {
         return _userRepository.UserExistsAsync(userId);
     }
+
+    public Task<User> UpdateUserAsync(User user)
+    {
+        return  _userRepository.UpdateUser(user);
+    }
+
+    public Task<List<User>> GetAllUsersAsync()
+    {
+        return _userRepository.GetAllUsers();
+    }
+
+    public async Task<bool> DeleteUserAsync(string id)
+    {
+        //Plan: before deleting a user we have to delete his activity
+
+        return await _userRepository.DeleteUserAsync(id);
+    }
 }

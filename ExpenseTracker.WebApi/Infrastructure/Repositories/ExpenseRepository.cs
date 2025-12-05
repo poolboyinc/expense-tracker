@@ -14,7 +14,7 @@ public class ExpenseRepository : IExpenseRepository
         _context = context;
     }
     
-    public Task<Expense> GetByIdAsync(int id)
+    public Task<Expense?> GetByIdAsync(int id)
     {
         return _context.Expenses
             .Include( e => e.ExpenseGroup)
@@ -75,6 +75,14 @@ public class ExpenseRepository : IExpenseRepository
             .Skip(skipAmount)
             .Take(pageSize)
             .ToListAsync(); 
+    }
+    
+    public async Task<int> CountExpensesInGroupAsync(int groupId, string userId)
+    {
+        return await _context.Expenses
+            .Where(e => e.ExpenseGroupId == groupId)
+            .Where(e => e.UserId == userId)
+            .CountAsync();
     }
     
     

@@ -4,9 +4,11 @@ public class ExpenseGroup
 {
     public int Id { get; set; }
     
-    public string Name { get; set; }
+    public required string Name { get; set; }
     
     public decimal? MonthlyLimit { get; set; }
+    
+    public required string UserId { get; set; } 
     
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 }

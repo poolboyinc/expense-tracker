@@ -18,9 +18,15 @@ builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddScoped<IIncomeRepository, IncomeRepository>();
+
+builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IExpenseGroupService, ExpenseGroupService>();
 
 //add income as a service
 
