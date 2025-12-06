@@ -55,8 +55,7 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(g => g.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade); 
-            
-        // ✅ NOVO: IncomeGroup <-> User
+        
         modelBuilder.Entity<IncomeGroup>()
             .HasOne<User>()
             .WithMany()
