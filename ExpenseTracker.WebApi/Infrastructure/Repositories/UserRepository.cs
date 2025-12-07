@@ -45,8 +45,6 @@ public class UserRepository : IUserRepository
     {
         var users = await _context.Users.ToListAsync();
         
-        Console.WriteLine(users.ToString());
-        
         return users;
     }
 

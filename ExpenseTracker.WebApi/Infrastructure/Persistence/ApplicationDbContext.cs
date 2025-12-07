@@ -24,41 +24,42 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         
         modelBuilder.Entity<Expense>()
-            .HasOne(e => e.ExpenseGroup)         
-            .WithMany(g => g.Expenses)             
-            .HasForeignKey(e => e.ExpenseGroupId)  
+            .HasOne(e => e.ExpenseGroup)      
+            .WithMany(g => g.Expenses)        
+            .HasForeignKey(e => e.ExpenseGroupId) 
             .IsRequired();
         
         modelBuilder.Entity<Income>()
-            .HasOne(i => i.IncomeGroup)        
-            .WithMany(g => g.Incomes)          
-            .HasForeignKey(i => i.IncomeGroupId)   
+            .HasOne(i => i.IncomeGroup)     
+            .WithMany(g => g.Incomes)       
+            .HasForeignKey(i => i.IncomeGroupId)    
             .IsRequired();
-        
+    
+
         modelBuilder.Entity<Expense>()
             .HasOne<User>()
-            .WithMany()
+            .WithMany(u => u.Expenses) 
             .HasForeignKey(e => e.UserId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade); 
+            .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<Income>()
             .HasOne<User>()
-            .WithMany()
+            .WithMany(u => u.Incomes) 
             .HasForeignKey(i => i.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<ExpenseGroup>()
             .HasOne<User>()
-            .WithMany()
+            .WithMany(u => u.ExpenseGroups) 
             .HasForeignKey(g => g.UserId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Cascade); 
+            .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<IncomeGroup>()
             .HasOne<User>()
-            .WithMany()
+            .WithMany(u => u.IncomeGroups) 
             .HasForeignKey(g => g.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade); 

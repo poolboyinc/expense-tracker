@@ -28,6 +28,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IExpenseGroupService, ExpenseGroupService>();
 
+builder.Services.AddScoped<IIncomeService, IncomeService>();
+
 //add income as a service
 
 builder.Services.AddControllers();
