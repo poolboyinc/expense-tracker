@@ -1,13 +1,14 @@
 ﻿using System.Net;
 using ExpenseTracker.WebApi.Application.ServiceContracts;
 using ExpenseTracker.WebApi.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-// [Authorize] 
+[Authorize] 
 public class ExpenseGroupsController : ControllerBase
 {
     private readonly IExpenseGroupService _groupService;

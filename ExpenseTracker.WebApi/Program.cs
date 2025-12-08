@@ -1,9 +1,12 @@
+using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceContracts;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +33,24 @@ builder.Services.AddScoped<IExpenseGroupService, ExpenseGroupService>();
 
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 
-//add income as a service
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+var tokenKey = builder.Configuration["Token:Key"] 
+               ?? throw new InvalidOperationException("Token Key nije podešen u konfiguraciji.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true, 
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false 
+        };
+    });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
