@@ -75,8 +75,7 @@ public class UserService : IUserService
 
         return await _userRepository.DeleteUserAsync(id);
     }
-
-    //this method is here until we implement jwt tokens in the project
+    
     public string GetCurrentUserId()
     {
         return FakeUserId;

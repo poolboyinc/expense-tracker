@@ -66,7 +66,7 @@ public class ExpenseController : ControllerBase
 
         if (expense == null)
         {
-            return NotFound("Traženi trošak nije pronađen ili niste ovlašćeni da ga vidite.");
+            return NotFound("Expense was not found");
         }
 
         return Ok(expense);
@@ -110,7 +110,7 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseInputModel input)
     {
-        if (id <= 0) return BadRequest("ID troška nije validan.");
+        if (id <= 0) return BadRequest("Expense ID is invalid.");
 
         var userId = await _userService.GetCurrentUserIdAsync();
         
@@ -130,7 +130,7 @@ public class ExpenseController : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return NotFound("Trošak nije pronađen ili niste ovlašćeni za promenu.");
+            return NotFound("Expense was not found");
         }
         catch (InvalidOperationException ex)
         {
@@ -154,7 +154,7 @@ public class ExpenseController : ControllerBase
         }
         catch (UnauthorizedAccessException)
         {
-            return NotFound("Traženi trošak nije pronađen ili niste ovlašćeni da ga brišete.");
+            return NotFound("Expense was not found");
         }
     }
 }
