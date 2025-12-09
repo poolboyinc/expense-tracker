@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+﻿using System.Security.Claims;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,79 +24,34 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
     
-    [HttpGet("current")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<string>> GetCurrentUserId()
-    {
-        var userId = await _userService.GetCurrentUserIdAsync();
-        return Ok(userId);
-    }
     
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)] 
-    public async Task<ActionResult<User>> CreateUser([FromBody] UserInputModel input)
-    {
-        if (string.IsNullOrEmpty(input.Id))
-        {
-            return BadRequest("The ID field is required.");
-        }
-        
-        var user = new User
-        {
-            Id = input.Id,
-            Name = input.Name
-        };
-
-        try
-        {
-            var createdUser = await _userService.CreateUserAsync(user);
-            
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
-    }
-    
-    [HttpGet("{id}")]
+    [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<User>> GetUserById(string id)
+    public async Task<ActionResult<User>> GetMe()
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
 
-        if (user == null)
-        {
-            return NotFound($"Users not found");
-        }
+        var user = await _userService.GetUserByIdAsync(userId);
+
+        if (user == null) return NotFound("User not found.");
 
         return Ok(user);
     }
-
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<User>>> GetAllUsers()
-    {
-        List<User> userList = await _userService.GetAllUsersAsync();
-
-        return Ok(userList);
-    }
     
-    [HttpDelete("{id}")]
+    
+    [HttpDelete("me")]
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
     [ProducesResponseType(StatusCodes.Status404NotFound)] 
-    public async Task<IActionResult> DeleteUser(string id)
+    public async Task<IActionResult> DeleteMe()
     {
-        var deleted = await _userService.DeleteUserAsync(id);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null) return Unauthorized();
 
-        if (!deleted)
-        {
-            return NotFound($"User with ID '{id}' not found.");
-        }
-        
-        return NoContent(); 
+        var deleted = await _userService.DeleteUserAsync(userId);
+        if (!deleted) return NotFound("User not found.");
+
+        return NoContent();
     }
 }
