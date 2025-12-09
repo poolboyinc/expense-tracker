@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using ExpenseTracker.WebApi.Application.DTOs.Income;
+using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +34,8 @@ public class IncomeController : ControllerBase
     {
         var userId = GetCurrentUserId();
         var incomes = await _incomeService.GetAllIncomesForUserAsync(userId);
-        return Ok(incomes);
+        var dtoList = incomes.Select(IncomeMapper.ToDto);
+        return Ok(dtoList);
     }
 
 
@@ -43,65 +46,37 @@ public class IncomeController : ControllerBase
     {
         var userId = GetCurrentUserId();
         var income = await _incomeService.GetIncomeByIdAsync(id, userId);
-
-        if (income == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(income);
+        if (income == null) return NotFound();
+        return Ok(IncomeMapper.ToDto(income));
     }
 
 
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(Income))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> CreateIncome([FromBody] Income income)
+    public async Task<IActionResult> CreateIncome([FromBody] IncomeCreateDto dto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         var userId = GetCurrentUserId();
-
-        try
-        {
-            var createdIncome = await _incomeService.CreateIncomeAsync(income, userId);
-            return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, createdIncome);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
+        var income = IncomeMapper.FromCreateDto(dto);
+        var createdIncome = await _incomeService.CreateIncomeAsync(income, userId);
+        return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, IncomeMapper.ToDto(createdIncome));
     }
     
     [HttpPut("{id}")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> UpdateIncome(int id, [FromBody] Income income)
+    public async Task<IActionResult> UpdateIncome(int id, [FromBody] IncomeUpdateDto dto)
     {
-        if (id != income.Id || !ModelState.IsValid)
-        {
-            return BadRequest();
-        }
-
+        if (id != dto.Id || !ModelState.IsValid) return BadRequest();
         var userId = GetCurrentUserId();
-        
-        try
-        {
-            await _incomeService.UpdateIncomeAsync(income, userId);
-            return NoContent(); 
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound($"Income with ID {id} not found or unauthorized.");
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
+        var existingIncome = await _incomeService.GetIncomeByIdAsync(id, userId);
+        if (existingIncome == null) return NotFound();
+
+        IncomeMapper.UpdateEntity(existingIncome, dto);
+        await _incomeService.UpdateIncomeAsync(existingIncome, userId);
+        return NoContent();
     }
 
  
@@ -111,14 +86,8 @@ public class IncomeController : ControllerBase
     public async Task<IActionResult> DeleteIncome(int id)
     {
         var userId = GetCurrentUserId();
-        
         var deleted = await _incomeService.DeleteIncomeAsync(id, userId);
-        
-        if (!deleted)
-        {
-            return NotFound();
-        }
-
-        return NoContent(); 
+        if (!deleted) return NotFound();
+        return NoContent();
     }
 }
