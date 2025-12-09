@@ -22,10 +22,6 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)] 
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
 
         try
         {
@@ -49,10 +45,6 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
 
         try
         {

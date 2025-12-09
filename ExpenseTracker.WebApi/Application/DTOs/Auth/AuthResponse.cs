@@ -1,12 +1,5 @@
-﻿namespace ExpenseTracker.WebApi.Application.DTOs.Auth;
+﻿using ExpenseTracker.WebApi.Application.DTOs.User;
 
-public class AuthResponse
-{
-    public string UserId { get; set; } = string.Empty;
-    
-    public string UserName { get; set; } = string.Empty;
-    
-    public string Token { get; set; } = string.Empty;
-    
-    public DateTime ExpiresAt { get; set; }
-}
+namespace ExpenseTracker.WebApi.Application.DTOs.Auth;
+
+public record AuthResponse(UserDto User, string Token, DateTime ExpiresAt);

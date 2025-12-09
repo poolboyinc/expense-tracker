@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using ExpenseTracker.WebApi.Application.DTOs.Auth;
+using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
@@ -39,13 +40,13 @@ public class AuthService : IAuthService
         
         var token = _tokenService.CreateToken(createdUser);
         
-        return new AuthResponse
-        {
-            UserId = createdUser.Id,
-            UserName = createdUser.Name,
-            Token = token,
-            ExpiresAt = DateTime.Now.AddDays(7) 
-        };
+        var userDto = UserMapper.ToDto(createdUser);
+
+        return new AuthResponse(
+            userDto,
+            token,
+            DateTime.UtcNow.AddDays(7)
+        );
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
@@ -64,13 +65,13 @@ public class AuthService : IAuthService
         
         var token = _tokenService.CreateToken(user);
         
-        return new AuthResponse
-        {
-            UserId = user.Id,
-            UserName = user.Name,
-            Token = token,
-            ExpiresAt = DateTime.Now.AddDays(7)
-        };
+        var userDto = UserMapper.ToDto(user);
+
+        return new AuthResponse(
+            userDto,
+            token,
+            DateTime.UtcNow.AddDays(7)
+        );
     }
     
 
