@@ -8,12 +8,10 @@ namespace ExpenseTracker.WebApi.Application.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IExpenseRepository _expenseRepository;
-    private readonly IUserServiceContext _userServiceContext;
 
     public ExpenseService(IExpenseRepository expenseRepository,  IUserServiceContext userServiceContext)
     {
         _expenseRepository = expenseRepository;
-        _userServiceContext = userServiceContext;
     }
 
     public async Task<List<Expense>> GetAllExpensesAsync(string userId)
