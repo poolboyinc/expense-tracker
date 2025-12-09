@@ -54,7 +54,7 @@ public class ExpenseRepository : IExpenseRepository
     }
 
 
-    public async Task<ICollection<Expense>> GetExpensesAsync(
+    public async Task<List<Expense>> GetExpensesAsync(
         string userId,
         int? groupId,
         string? searchTerm,

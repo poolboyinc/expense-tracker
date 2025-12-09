@@ -4,14 +4,13 @@ namespace ExpenseTracker.WebApi.Domain.Interfaces;
 
 public interface IExpenseRepository
 {
-    Task<List<Expense>> GetAllExpenses(string userId); 
     Task<Expense?> GetByIdAsync(int id, string userId);
     Task AddAsync(Expense expense);
     Task UpdateAsync(Expense expense);
     Task DeleteAsync(Expense expense);
     Task<ExpenseGroup?> GetGroupByIdAsync(int groupId);
     
-    Task<ICollection<Expense>> GetExpensesAsync(
+    Task<List<Expense>> GetExpensesAsync(
         string userId,
         int? groupId,
         string? searchTerm,

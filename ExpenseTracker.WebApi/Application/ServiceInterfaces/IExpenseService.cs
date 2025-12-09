@@ -5,13 +5,11 @@ namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IExpenseService
 {
-    Task<List<Expense>> GetAllExpensesAsync(string userId); 
-    
     Task<Expense?> GetExpenseByIdAsync(int id, string userId); 
     
     Task<Expense> CreateExpenseAsync(Expense expense, string userId);
     
-    Task<ICollection<Expense>> GetFilteredExpensesAsync(
+    Task<List<Expense>> GetFilteredExpensesAsync(
         string userId,
         int? groupId,
         string? searchTerm,

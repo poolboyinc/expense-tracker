@@ -14,13 +14,6 @@ public class ExpenseService : IExpenseService
         _expenseRepository = expenseRepository;
     }
 
-    public async Task<List<Expense>> GetAllExpensesAsync(string userId)
-    {
-        var expenses = await _expenseRepository.GetAllExpenses(userId);
-        
-        return expenses;
-    }
-
     public async Task<Expense?> GetExpenseByIdAsync(int id, string userId)
     {
         var expense = await _expenseRepository.GetByIdAsync(id, userId);
@@ -44,7 +37,7 @@ public class ExpenseService : IExpenseService
         return expense;
     }
 
-    public async Task<ICollection<Expense>> GetFilteredExpensesAsync(string userId, int? groupId, string? searchTerm, int pageNumber, int pageSize)
+    public async Task<List<Expense>> GetFilteredExpensesAsync(string userId, int? groupId, string? searchTerm, int pageNumber, int pageSize)
     {
         return await _expenseRepository.GetExpensesAsync(userId, groupId, searchTerm, pageNumber, pageSize);
     }
