@@ -42,7 +42,9 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         var expense = await expenseService.GetExpenseByIdAsync(id, userId);
 
         if (expense == null)
+        {
             return NotFound("Expense was not found");
+        }
 
         return Ok(expense.ToDetailsDto());
     }
@@ -67,8 +69,9 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
+
     }
 
     [HttpPut("{id}")]
@@ -86,11 +89,11 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
         catch (UnauthorizedAccessException)
         {
-            return NotFound("Expense was not found");
+            return Forbid();
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
     }
 
@@ -105,9 +108,17 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
             await expenseService.DeleteExpenseAsync(id, userId);
             return NoContent();
         }
-        catch (InvalidOperationException)
+        catch (KeyNotFoundException)
         {
-            return NotFound("Expense was not found");
+            return NotFound("Expense not found");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid(); 
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 }
