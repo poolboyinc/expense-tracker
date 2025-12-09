@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
+using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
+using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -9,118 +11,89 @@ namespace ExpenseTracker.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] 
+[Authorize]
 public class ExpenseGroupsController : ControllerBase
 {
     private readonly IExpenseGroupService _groupService;
-    private readonly IUserServiceContext _userServiceContext; 
-    
-    //only for the purpose of testing!
-    public record CreateExpenseGroupInput(
-        [Required] string Name,
-        decimal? MonthlyLimit
-    );
+    private readonly IUserServiceContext _userServiceContext;
 
     public ExpenseGroupsController(IExpenseGroupService groupService, IUserServiceContext userServiceContext)
     {
         _groupService = groupService;
         _userServiceContext = userServiceContext;
     }
-    
-    private string GetCurrentUserId()
-    {
-        return _userServiceContext.GetCurrentUserId(); 
-    }
+
+    private string GetCurrentUserId() => _userServiceContext.GetCurrentUserId();
 
 
     [HttpGet]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<ExpenseGroup>))]
-    public async Task<IActionResult> GetAllGroups()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ExpenseGroupListDto>>> GetAllGroups()
     {
         var userId = GetCurrentUserId();
         var groups = await _groupService.GetAllGroupsForUserAsync(userId);
-        return Ok(groups);
+
+        return Ok(groups.Select(g => g.ToListDto()));
     }
-    
+
+
     [HttpGet("{id}")]
-    [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ExpenseGroup))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetGroup(int id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ExpenseGroupDetailsDto>> GetGroup(int id)
     {
         var userId = GetCurrentUserId();
         var group = await _groupService.GetGroupByIdAsync(id, userId);
 
         if (group == null)
-        {
             return NotFound();
-        }
 
-        return Ok(group);
+        return Ok(group.ToDetailsDto());
     }
 
+   
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(ExpenseGroup))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> CreateGroup([FromBody] CreateExpenseGroupInput input)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ExpenseGroupDetailsDto>> CreateGroup([FromBody] ExpenseGroupCreateDto dto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
         var userId = GetCurrentUserId();
 
-        var groupToCreate = new ExpenseGroup
-        {
-            UserId = userId,
-            Name = input.Name,
-            MonthlyLimit = input.MonthlyLimit
-        };
+        var group = dto.ToEntity(userId);
 
         try
         {
-            var createdGroup = await _groupService.CreateGroupAsync(groupToCreate, userId);
-            return CreatedAtAction(nameof(GetGroup), new { id = createdGroup.Id }, createdGroup);
+            var created = await _groupService.CreateGroupAsync(group, userId);
+            return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created.ToDetailsDto());
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(new { Message = ex.Message });
         }
     }
-    
+
+
     [HttpPut("{id}")]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> UpdateGroup(int id, [FromBody] ExpenseGroup group)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateGroup(int id, [FromBody] ExpenseGroupUpdateDto dto)
     {
-        if (id != group.Id || !ModelState.IsValid)
-        {
-            return BadRequest();
-        }
-
         var userId = GetCurrentUserId();
+        var existing = await _groupService.GetGroupByIdAsync(id, userId);
 
-        try
-        {
-            await _groupService.UpdateGroupAsync(group, userId);
-            return NoContent(); 
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound($"Expense Group with ID {id} not found or unauthorized.");
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { Message = ex.Message });
-        }
+        if (existing == null)
+            return NotFound("Expense group not found or unauthorized.");
+
+        dto.MapToEntity(existing);
+
+        await _groupService.UpdateGroupAsync(existing, userId);
+        return NoContent();
     }
 
 
     [HttpDelete("{id}")]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType((int)HttpStatusCode.Conflict)] 
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteGroup(int id)
     {
         var userId = GetCurrentUserId();
@@ -128,17 +101,15 @@ public class ExpenseGroupsController : ControllerBase
         try
         {
             var deleted = await _groupService.DeleteGroupAsync(id, userId);
-            
+
             if (!deleted)
-            {
                 return NotFound();
-            }
 
             return NoContent();
         }
         catch (InvalidOperationException ex)
         {
-            return Conflict(new { Message = ex.Message }); 
+            return Conflict(new { Message = ex.Message });
         }
     }
 }

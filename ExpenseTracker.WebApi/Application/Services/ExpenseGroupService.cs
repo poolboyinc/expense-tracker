@@ -49,7 +49,7 @@ public class ExpenseGroupService : IExpenseGroupService
         existingGroup.Name = group.Name;
         existingGroup.MonthlyLimit = group.MonthlyLimit;
         
-        return await _groupRepository.UpdateGroupAsync(group);
+        return await _groupRepository.UpdateGroupAsync(existingGroup);
     }
     
     public async Task<bool> DeleteGroupAsync(int id, string userId)
