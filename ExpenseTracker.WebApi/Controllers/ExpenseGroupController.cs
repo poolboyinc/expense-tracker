@@ -1,5 +1,6 @@
-﻿using System.Net;
-using ExpenseTracker.WebApi.Application.ServiceContracts;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,18 +13,23 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class ExpenseGroupsController : ControllerBase
 {
     private readonly IExpenseGroupService _groupService;
-    private readonly IUserService _userService; 
+    private readonly IUserServiceContext _userServiceContext; 
+    
+    //only for the purpose of testing!
+    public record CreateExpenseGroupInput(
+        [Required] string Name,
+        decimal? MonthlyLimit
+    );
 
-    public ExpenseGroupsController(IExpenseGroupService groupService, IUserService userService)
+    public ExpenseGroupsController(IExpenseGroupService groupService, IUserServiceContext userServiceContext)
     {
         _groupService = groupService;
-        _userService = userService;
+        _userServiceContext = userServiceContext;
     }
     
     private string GetCurrentUserId()
     {
-        //in the future we will use jwt tokens
-        return _userService.GetCurrentUserId(); 
+        return _userServiceContext.GetCurrentUserId(); 
     }
 
 
@@ -55,7 +61,7 @@ public class ExpenseGroupsController : ControllerBase
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(ExpenseGroup))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> CreateGroup([FromBody] ExpenseGroup group)
+    public async Task<IActionResult> CreateGroup([FromBody] CreateExpenseGroupInput input)
     {
         if (!ModelState.IsValid)
         {
@@ -64,9 +70,16 @@ public class ExpenseGroupsController : ControllerBase
         
         var userId = GetCurrentUserId();
 
+        var groupToCreate = new ExpenseGroup
+        {
+            UserId = userId,
+            Name = input.Name,
+            MonthlyLimit = input.MonthlyLimit
+        };
+
         try
         {
-            var createdGroup = await _groupService.CreateGroupAsync(group, userId);
+            var createdGroup = await _groupService.CreateGroupAsync(groupToCreate, userId);
             return CreatedAtAction(nameof(GetGroup), new { id = createdGroup.Id }, createdGroup);
         }
         catch (InvalidOperationException ex)

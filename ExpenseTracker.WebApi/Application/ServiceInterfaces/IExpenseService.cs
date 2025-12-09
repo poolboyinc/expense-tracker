@@ -1,10 +1,14 @@
 ﻿using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
-namespace ExpenseTracker.WebApi.Application.ServiceContracts;
+namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IExpenseService
 {
+    Task<List<Expense>> GetAllExpensesAsync(string userId); 
+    
+    Task<Expense?> GetExpenseByIdAsync(int id, string userId); 
+    
     Task<Expense> CreateExpenseAsync(Expense expense, string userId);
     
     Task<ICollection<Expense>> GetFilteredExpensesAsync(
@@ -13,8 +17,6 @@ public interface IExpenseService
         string? searchTerm,
         int pageNumber,
         int pageSize);
-
-    Task<Expense?> GetExpenseByIdAsync(int id, string userId);
 
     Task UpdateExpenseAsync(Expense expense, string userId);
     

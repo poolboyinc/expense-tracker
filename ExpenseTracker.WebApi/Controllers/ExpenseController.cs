@@ -1,17 +1,18 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceContracts;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.WebApi.Controllers;
 
- 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ExpenseController : ControllerBase
 {
     private readonly IExpenseService _expenseService;
-    private readonly IUserService _userService;
+    private readonly IUserServiceContext _userServiceContext;
     
     public class ExpenseParameters
     {
@@ -30,10 +31,10 @@ public class ExpenseController : ControllerBase
         public int ExpenseGroupId { get; set; } 
     }
 
-    public ExpenseController(IExpenseService expenseService, IUserService userService)
+    public ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
     {
         _expenseService = expenseService;
-        _userService = userService;
+        _userServiceContext = userServiceContext;
     }
     
     [HttpGet]
@@ -41,7 +42,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses(
         [FromQuery] ExpenseParameters parameters)
     {
-        var userId = await _userService.GetCurrentUserIdAsync();
+        var userId =  _userServiceContext.GetCurrentUserId();
         
         var expenses = await _expenseService.GetFilteredExpensesAsync(
             userId,
@@ -60,7 +61,7 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Expense>> GetExpenseById(int id)
     {
-        var userId = await _userService.GetCurrentUserIdAsync();
+        var userId = _userServiceContext.GetCurrentUserId();
         
         var expense = await _expenseService.GetExpenseByIdAsync(id, userId);
 
@@ -80,7 +81,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<Expense>> CreateExpense(
         [FromBody] ExpenseInputModel input)
     {
-        var userId = await _userService.GetCurrentUserIdAsync();
+        var userId = _userServiceContext.GetCurrentUserId();
         
         var newExpense = new Expense
         {
@@ -112,7 +113,7 @@ public class ExpenseController : ControllerBase
     {
         if (id <= 0) return BadRequest("Expense ID is invalid.");
 
-        var userId = await _userService.GetCurrentUserIdAsync();
+        var userId = _userServiceContext.GetCurrentUserId();
         
         var expenseToUpdate = new Expense
         {
@@ -145,7 +146,7 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteExpense(int id)
     {
-        var userId = await _userService.GetCurrentUserIdAsync();
+        var userId = _userServiceContext.GetCurrentUserId();
 
         try
         {

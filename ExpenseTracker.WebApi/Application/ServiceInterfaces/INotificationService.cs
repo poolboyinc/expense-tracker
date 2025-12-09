@@ -1,4 +1,4 @@
-﻿namespace ExpenseTracker.WebApi.Application.ServiceContracts;
+﻿namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface INotificationService
 {

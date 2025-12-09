@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using ExpenseTracker.WebApi.Application.ServiceContracts;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,17 +12,17 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class IncomeController : ControllerBase
 {
     private readonly IIncomeService _incomeService;
-    private readonly IUserService _userService;
+    private readonly IUserServiceContext _userServiceContext;
 
-    public IncomeController(IIncomeService incomeService, IUserService userService)
+    public IncomeController(IIncomeService incomeService, IUserServiceContext userServiceContext)
     {
         _incomeService = incomeService;
-        _userService = userService;
+        _userServiceContext = userServiceContext;
     }
     
     private string GetCurrentUserId()
     {
-        return _userService.GetCurrentUserId(); 
+        return _userServiceContext.GetCurrentUserId(); 
     }
 
 

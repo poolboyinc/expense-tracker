@@ -14,25 +14,22 @@ public class ExpenseGroupRepository : IExpenseGroupRepository
         _context = context;
     }
     
+    public async Task<List<ExpenseGroup>> GetAllGroupsAsync(string userId)
+    {
+        return await _context.ExpenseGroups.Where(g => g.UserId == userId).ToListAsync();
+    }
+
+    public async Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
+    {
+        return await  _context.ExpenseGroups.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+    }
+
+    
     public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group)
     {
         await _context.ExpenseGroups.AddAsync(group);
         await _context.SaveChangesAsync();
         return group;
-    }
-    
-    public async Task<ExpenseGroup?> GetGroupByIdAsync(int id)
-    {
-        return await _context.ExpenseGroups
-            .FirstOrDefaultAsync(g => g.Id == id);
-    }
-    
-    public async Task<List<ExpenseGroup>> GetGroupsByUserIdAsync(string userId)
-    {
-        return await _context.ExpenseGroups
-            .Where(g => g.UserId == userId)
-            .OrderBy(g => g.Name)
-            .ToListAsync();
     }
     
     public async Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group)
@@ -41,27 +38,12 @@ public class ExpenseGroupRepository : IExpenseGroupRepository
         await _context.SaveChangesAsync(); 
         return group;
     }
-    
-    public async Task<bool> DeleteGroupAsync(int id)
+
+    public async Task DeleteGroupAsync(ExpenseGroup group)
     {
-        var groupToDelete = await _context.ExpenseGroups.FindAsync(id);
-
-        if (groupToDelete == null)
-        {
-            return false;
-        }
-        
-        //configure cascade deletion in ef core
-
-        _context.ExpenseGroups.Remove(groupToDelete);
+        _context.ExpenseGroups.Remove(group);
         await _context.SaveChangesAsync();
-        
-        return true;
     }
     
-    public async Task<bool> GroupExistsAsync(int id)
-    {
-        return await _context.ExpenseGroups.AnyAsync(g => g.Id == id);
-    }
     
 }

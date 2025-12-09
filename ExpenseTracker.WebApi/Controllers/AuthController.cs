@@ -1,5 +1,5 @@
 ﻿using ExpenseTracker.WebApi.Application.DTOs.Auth;
-using ExpenseTracker.WebApi.Application.ServiceContracts;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.WebApi.Controllers;

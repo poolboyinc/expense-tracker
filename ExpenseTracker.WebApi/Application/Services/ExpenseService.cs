@@ -1,4 +1,4 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceContracts;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
@@ -8,10 +8,26 @@ namespace ExpenseTracker.WebApi.Application.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IExpenseRepository _expenseRepository;
+    private readonly IUserServiceContext _userServiceContext;
 
-    public ExpenseService(IExpenseRepository expenseRepository)
+    public ExpenseService(IExpenseRepository expenseRepository,  IUserServiceContext userServiceContext)
     {
         _expenseRepository = expenseRepository;
+        _userServiceContext = userServiceContext;
+    }
+
+    public async Task<List<Expense>> GetAllExpensesAsync(string userId)
+    {
+        var expenses = await _expenseRepository.GetAllExpenses(userId);
+        
+        return expenses;
+    }
+
+    public async Task<Expense?> GetExpenseByIdAsync(int id, string userId)
+    {
+        var expense = await _expenseRepository.GetByIdAsync(id, userId);
+        
+        return expense;
     }
 
     public async Task<Expense> CreateExpenseAsync(Expense expense, string userId)
@@ -34,22 +50,10 @@ public class ExpenseService : IExpenseService
     {
         return await _expenseRepository.GetExpensesAsync(userId, groupId, searchTerm, pageNumber, pageSize);
     }
-
-    public async Task<Expense?> GetExpenseByIdAsync(int id, string userId)
-    {
-        var expense = _expenseRepository.GetByIdAsync(id);
-        
-        if (expense == null)
-        {
-            return null; 
-        }
-
-        return await expense;
-    }
-
+    
     public async Task UpdateExpenseAsync(Expense expense, string userId)
     {
-        var existingExpense = await _expenseRepository.GetByIdAsync(expense.Id);
+        var existingExpense = await _expenseRepository.GetByIdAsync(expense.Id, userId);
 
         if (existingExpense == null || existingExpense.UserId != userId)
         {
@@ -78,7 +82,7 @@ public class ExpenseService : IExpenseService
 
     public async Task DeleteExpenseAsync(int id, string userId)
     {
-        var expense = await _expenseRepository.GetByIdAsync(id);
+        var expense = await _expenseRepository.GetByIdAsync(id, userId);
 
         if (expense == null)
         {

@@ -1,4 +1,4 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceContracts;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
@@ -7,27 +7,28 @@ namespace ExpenseTracker.WebApi.Application.Services;
 public class IncomeService : IIncomeService
 {
     private readonly IIncomeRepository _incomeRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserServiceContext _userServiceContext;
     private readonly IExpenseGroupRepository _groupRepository; 
 
     public IncomeService(IIncomeRepository incomeRepository, 
-                         IUserRepository userRepository,
+                         IUserServiceContext userServiceContext,
                          IExpenseGroupRepository groupRepository) 
     {
         _incomeRepository = incomeRepository;
-        _userRepository = userRepository;
+        _userServiceContext = userServiceContext;
         _groupRepository = groupRepository;
     }
     private async Task ValidateIncomeDataAsync(Income income)
     {
-        var userExists = await _userRepository.UserExistsAsync(income.UserId);
-        if (!userExists)
+        var userId = _userServiceContext.GetCurrentUserId();
+        
+        if (userId == null)
         {
             throw new KeyNotFoundException($"User with this ID not found.");
         }
         
-        var groupExists = await _groupRepository.GroupExistsAsync(income.IncomeGroupId); 
-        if (!groupExists)
+        var expenseGroup = await _groupRepository.GetGroupByIdAsync(income.IncomeGroupId, userId); 
+        if (expenseGroup == null)
         {
             throw new KeyNotFoundException($"Income Group with this ID not found.");
         }
