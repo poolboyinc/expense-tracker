@@ -14,18 +14,10 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
     : ControllerBase
 {
-    public class ExpenseParameters
-    {
-        public int? GroupId { get; set; }
-        public string? SearchTerm { get; set; }
-        public int PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        //public string SortBy { get; set; } = "date"; 
-    }
-
+    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseParameters parameters)
+    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseQueryParameters parameters)
     {
         var userId = userServiceContext.GetCurrentUserId();
 
