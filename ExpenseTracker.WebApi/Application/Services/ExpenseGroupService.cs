@@ -4,38 +4,30 @@ using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class ExpenseGroupService : IExpenseGroupService
+public class ExpenseGroupService(IExpenseGroupRepository groupRepository, IExpenseRepository expenseRepository)
+    : IExpenseGroupService
 {
-    private readonly IExpenseGroupRepository _groupRepository;
-    private readonly IExpenseRepository _expenseRepository; 
-
-    public ExpenseGroupService(IExpenseGroupRepository groupRepository, IExpenseRepository expenseRepository)
-    {
-        _groupRepository = groupRepository;
-        _expenseRepository = expenseRepository;
-    }
-    
     public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group, string userId)
     {
         group.UserId = userId;
         
-        var existingGroups = await _groupRepository.GetAllGroupsAsync(userId);
+        var existingGroups = await groupRepository.GetAllGroupsAsync(userId);
         if (existingGroups.Any(g => g.Name.Equals(group.Name, StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidOperationException($"Expense group with name '{group.Name}' already exists for this user.");
         }
 
-        return await _groupRepository.CreateGroupAsync(group);
+        return await groupRepository.CreateGroupAsync(group);
     }
     
     public Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
     {
-        return _groupRepository.GetGroupByIdAsync(id, userId);
+        return groupRepository.GetGroupByIdAsync(id, userId);
     }
     
     public Task<List<ExpenseGroup>> GetAllGroupsForUserAsync(string userId)
     {
-        return _groupRepository.GetAllGroupsAsync(userId);
+        return groupRepository.GetAllGroupsAsync(userId);
     }
     
     public async Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group, string userId)
@@ -49,7 +41,7 @@ public class ExpenseGroupService : IExpenseGroupService
         existingGroup.Name = group.Name;
         existingGroup.MonthlyLimit = group.MonthlyLimit;
         
-        return await _groupRepository.UpdateGroupAsync(existingGroup);
+        return await groupRepository.UpdateGroupAsync(existingGroup);
     }
     
     public async Task<bool> DeleteGroupAsync(int id, string userId)
@@ -61,14 +53,14 @@ public class ExpenseGroupService : IExpenseGroupService
             return false;
         }
         
-        var expensesCount = await _expenseRepository.CountExpensesInGroupAsync(id, userId);
+        var expensesCount = await expenseRepository.CountExpensesInGroupAsync(id, userId);
         
         if (expensesCount > 0)
         {
             throw new InvalidOperationException($"Cannot delete group.");
         }
 
-        await _groupRepository.DeleteGroupAsync(groupToDelete);
+        await groupRepository.DeleteGroupAsync(groupToDelete);
 
         return true;
     }

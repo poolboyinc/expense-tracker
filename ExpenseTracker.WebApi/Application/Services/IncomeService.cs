@@ -4,30 +4,22 @@ using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class IncomeService : IIncomeService
+public class IncomeService(
+    IIncomeRepository incomeRepository,
+    IUserServiceContext userServiceContext,
+    IExpenseGroupRepository groupRepository)
+    : IIncomeService
 {
-    private readonly IIncomeRepository _incomeRepository;
-    private readonly IUserServiceContext _userServiceContext;
-    private readonly IExpenseGroupRepository _groupRepository; 
-
-    public IncomeService(IIncomeRepository incomeRepository, 
-                         IUserServiceContext userServiceContext,
-                         IExpenseGroupRepository groupRepository) 
-    {
-        _incomeRepository = incomeRepository;
-        _userServiceContext = userServiceContext;
-        _groupRepository = groupRepository;
-    }
     private async Task ValidateIncomeDataAsync(Income income)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
         
         if (userId == null)
         {
             throw new KeyNotFoundException($"User with this ID not found.");
         }
         
-        var expenseGroup = await _groupRepository.GetGroupByIdAsync(income.IncomeGroupId, userId); 
+        var expenseGroup = await groupRepository.GetGroupByIdAsync(income.IncomeGroupId, userId); 
         if (expenseGroup == null)
         {
             throw new KeyNotFoundException($"Income Group with this ID not found.");
@@ -40,12 +32,12 @@ public class IncomeService : IIncomeService
         
         await ValidateIncomeDataAsync(income);
 
-        return await _incomeRepository.CreateIncomeAsync(income);
+        return await incomeRepository.CreateIncomeAsync(income);
     }
     
     public async Task<Income?> GetIncomeByIdAsync(int id, string userId)
     {
-        var income = await _incomeRepository.GetIncomeByIdAsync(id);
+        var income = await incomeRepository.GetIncomeByIdAsync(id);
         
         if (income != null && income.UserId != userId)
         {
@@ -57,7 +49,7 @@ public class IncomeService : IIncomeService
     
     public Task<List<Income>> GetAllIncomesForUserAsync(string userId)
     {
-        return _incomeRepository.GetAllIncomesByUserIdAsync(userId);
+        return incomeRepository.GetAllIncomesByUserIdAsync(userId);
     }
     
     public async Task<Income> UpdateIncomeAsync(Income income, string userId)
@@ -72,7 +64,7 @@ public class IncomeService : IIncomeService
         
         await ValidateIncomeDataAsync(income);
         
-        return await _incomeRepository.UpdateIncomeAsync(income);
+        return await incomeRepository.UpdateIncomeAsync(income);
     }
     
     public async Task<bool> DeleteIncomeAsync(int id, string userId)
@@ -84,6 +76,6 @@ public class IncomeService : IIncomeService
             return false;
         }
 
-        return await _incomeRepository.DeleteIncomeAsync(id);
+        return await incomeRepository.DeleteIncomeAsync(id);
     }
 }

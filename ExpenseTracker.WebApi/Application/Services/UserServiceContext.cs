@@ -3,18 +3,11 @@ using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class UserServiceContext : IUserServiceContext
+public class UserServiceContext(IHttpContextAccessor httpContextAccessor) : IUserServiceContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public UserServiceContext(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-    
     public string GetCurrentUserId()
     {
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         
         if (httpContext?.User == null || !httpContext.User.Identity!.IsAuthenticated)
         {
@@ -33,6 +26,6 @@ public class UserServiceContext : IUserServiceContext
 
     public bool IsAuthenticated()
     {
-        return _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
+        return httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
     }
 }

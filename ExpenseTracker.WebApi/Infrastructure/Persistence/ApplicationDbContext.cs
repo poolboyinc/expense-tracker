@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.WebApi.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-        
-    }
-    
     public DbSet<Expense> Expenses { get; set; }
     public DbSet<ExpenseGroup> ExpenseGroups { get; set; }
     

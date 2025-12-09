@@ -11,16 +11,8 @@ namespace ExpenseTracker.WebApi.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UsersController(IUserService userService)
-    {
-        _userService = userService;
-    }
-    
-    
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -29,7 +21,7 @@ public class UsersController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();
 
-        var user = await _userService.GetUserByIdAsync(userId);
+        var user = await userService.GetUserByIdAsync(userId);
 
         if (user == null) return NotFound("User not found.");
 
@@ -45,7 +37,7 @@ public class UsersController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null) return Unauthorized();
 
-        var deleted = await _userService.DeleteUserAsync(userId);
+        var deleted = await userService.DeleteUserAsync(userId);
         if (!deleted) return NotFound("User not found.");
 
         return NoContent();

@@ -11,20 +11,12 @@ namespace ExpenseTracker.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize] 
-public class IncomeController : ControllerBase
+public class IncomeController(IIncomeService incomeService, IUserServiceContext userServiceContext)
+    : ControllerBase
 {
-    private readonly IIncomeService _incomeService;
-    private readonly IUserServiceContext _userServiceContext;
-
-    public IncomeController(IIncomeService incomeService, IUserServiceContext userServiceContext)
-    {
-        _incomeService = incomeService;
-        _userServiceContext = userServiceContext;
-    }
-    
     private string GetCurrentUserId()
     {
-        return _userServiceContext.GetCurrentUserId(); 
+        return userServiceContext.GetCurrentUserId(); 
     }
 
 
@@ -33,7 +25,7 @@ public class IncomeController : ControllerBase
     public async Task<IActionResult> GetAllIncomes()
     {
         var userId = GetCurrentUserId();
-        var incomes = await _incomeService.GetAllIncomesForUserAsync(userId);
+        var incomes = await incomeService.GetAllIncomesForUserAsync(userId);
         var dtoList = incomes.Select(IncomeMapper.ToDto);
         return Ok(dtoList);
     }
@@ -45,7 +37,7 @@ public class IncomeController : ControllerBase
     public async Task<IActionResult> GetIncome(int id)
     {
         var userId = GetCurrentUserId();
-        var income = await _incomeService.GetIncomeByIdAsync(id, userId);
+        var income = await incomeService.GetIncomeByIdAsync(id, userId);
         if (income == null) return NotFound();
         return Ok(IncomeMapper.ToDto(income));
     }
@@ -59,7 +51,7 @@ public class IncomeController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         var userId = GetCurrentUserId();
         var income = IncomeMapper.FromCreateDto(dto);
-        var createdIncome = await _incomeService.CreateIncomeAsync(income, userId);
+        var createdIncome = await incomeService.CreateIncomeAsync(income, userId);
         return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, IncomeMapper.ToDto(createdIncome));
     }
     
@@ -71,11 +63,11 @@ public class IncomeController : ControllerBase
     {
         if (id != dto.Id || !ModelState.IsValid) return BadRequest();
         var userId = GetCurrentUserId();
-        var existingIncome = await _incomeService.GetIncomeByIdAsync(id, userId);
+        var existingIncome = await incomeService.GetIncomeByIdAsync(id, userId);
         if (existingIncome == null) return NotFound();
 
         IncomeMapper.UpdateEntity(existingIncome, dto);
-        await _incomeService.UpdateIncomeAsync(existingIncome, userId);
+        await incomeService.UpdateIncomeAsync(existingIncome, userId);
         return NoContent();
     }
 
@@ -86,7 +78,7 @@ public class IncomeController : ControllerBase
     public async Task<IActionResult> DeleteIncome(int id)
     {
         var userId = GetCurrentUserId();
-        var deleted = await _incomeService.DeleteIncomeAsync(id, userId);
+        var deleted = await incomeService.DeleteIncomeAsync(id, userId);
         if (!deleted) return NotFound();
         return NoContent();
     }

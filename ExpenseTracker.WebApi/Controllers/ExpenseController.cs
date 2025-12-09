@@ -11,11 +11,9 @@ namespace ExpenseTracker.WebApi.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class ExpenseController : ControllerBase
+public class ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
+    : ControllerBase
 {
-    private readonly IExpenseService _expenseService;
-    private readonly IUserServiceContext _userServiceContext;
-    
     public class ExpenseParameters
     {
         public int? GroupId { get; set; }
@@ -25,19 +23,13 @@ public class ExpenseController : ControllerBase
         //public string SortBy { get; set; } = "date"; 
     }
 
-    public ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
-    {
-        _expenseService = expenseService;
-        _userServiceContext = userServiceContext;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseParameters parameters)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
 
-        var expenses = await _expenseService.GetFilteredExpensesAsync(
+        var expenses = await expenseService.GetFilteredExpensesAsync(
             userId,
             parameters.GroupId,
             parameters.SearchTerm,
@@ -53,9 +45,9 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ExpenseDetailsDto>> GetExpenseById(int id)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
 
-        var expense = await _expenseService.GetExpenseByIdAsync(id, userId);
+        var expense = await expenseService.GetExpenseByIdAsync(id, userId);
 
         if (expense == null)
             return NotFound("Expense was not found");
@@ -67,13 +59,13 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ExpenseDetailsDto>> CreateExpense([FromBody] ExpenseCreateDto dto)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
 
         var newExpense = dto.ToEntity(userId);
 
         try
         {
-            var created = await _expenseService.CreateExpenseAsync(newExpense, userId);
+            var created = await expenseService.CreateExpenseAsync(newExpense, userId);
 
             return CreatedAtAction(
                 nameof(GetExpenseById),
@@ -91,13 +83,13 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseUpdateDto dto)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
 
         var exp = dto.ToEntity(id, userId);
 
         try
         {
-            await _expenseService.UpdateExpenseAsync(exp, userId);
+            await expenseService.UpdateExpenseAsync(exp, userId);
             return NoContent();
         }
         catch (UnauthorizedAccessException)
@@ -114,11 +106,11 @@ public class ExpenseController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteExpense(int id)
     {
-        var userId = _userServiceContext.GetCurrentUserId();
+        var userId = userServiceContext.GetCurrentUserId();
 
         try
         {
-            await _expenseService.DeleteExpenseAsync(id, userId);
+            await expenseService.DeleteExpenseAsync(id, userId);
             return NoContent();
         }
         catch (InvalidOperationException)

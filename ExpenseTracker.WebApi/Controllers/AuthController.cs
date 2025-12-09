@@ -6,16 +6,8 @@ namespace ExpenseTracker.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
-
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -25,7 +17,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            var response = await _authService.RegisterAsync(request);
+            var response = await authService.RegisterAsync(request);
             return Ok(response); 
         }
         catch (InvalidOperationException ex)
@@ -48,7 +40,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            var response = await _authService.LoginAsync(request);
+            var response = await authService.LoginAsync(request);
             return Ok(response);
         }
         catch (UnauthorizedAccessException ex)

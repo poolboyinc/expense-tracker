@@ -12,18 +12,10 @@ namespace ExpenseTracker.WebApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ExpenseGroupsController : ControllerBase
+public class ExpenseGroupsController(IExpenseGroupService groupService, IUserServiceContext userServiceContext)
+    : ControllerBase
 {
-    private readonly IExpenseGroupService _groupService;
-    private readonly IUserServiceContext _userServiceContext;
-
-    public ExpenseGroupsController(IExpenseGroupService groupService, IUserServiceContext userServiceContext)
-    {
-        _groupService = groupService;
-        _userServiceContext = userServiceContext;
-    }
-
-    private string GetCurrentUserId() => _userServiceContext.GetCurrentUserId();
+    private string GetCurrentUserId() => userServiceContext.GetCurrentUserId();
 
 
     [HttpGet]
@@ -31,7 +23,7 @@ public class ExpenseGroupsController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseGroupListDto>>> GetAllGroups()
     {
         var userId = GetCurrentUserId();
-        var groups = await _groupService.GetAllGroupsForUserAsync(userId);
+        var groups = await groupService.GetAllGroupsForUserAsync(userId);
 
         return Ok(groups.Select(g => g.ToListDto()));
     }
@@ -43,7 +35,7 @@ public class ExpenseGroupsController : ControllerBase
     public async Task<ActionResult<ExpenseGroupDetailsDto>> GetGroup(int id)
     {
         var userId = GetCurrentUserId();
-        var group = await _groupService.GetGroupByIdAsync(id, userId);
+        var group = await groupService.GetGroupByIdAsync(id, userId);
 
         if (group == null)
             return NotFound();
@@ -62,7 +54,7 @@ public class ExpenseGroupsController : ControllerBase
 
         try
         {
-            var created = await _groupService.CreateGroupAsync(group, userId);
+            var created = await groupService.CreateGroupAsync(group, userId);
             return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created.ToDetailsDto());
         }
         catch (InvalidOperationException ex)
@@ -78,14 +70,14 @@ public class ExpenseGroupsController : ControllerBase
     public async Task<IActionResult> UpdateGroup(int id, [FromBody] ExpenseGroupUpdateDto dto)
     {
         var userId = GetCurrentUserId();
-        var existing = await _groupService.GetGroupByIdAsync(id, userId);
+        var existing = await groupService.GetGroupByIdAsync(id, userId);
 
         if (existing == null)
             return NotFound("Expense group not found or unauthorized.");
 
         dto.MapToEntity(existing);
 
-        await _groupService.UpdateGroupAsync(existing, userId);
+        await groupService.UpdateGroupAsync(existing, userId);
         return NoContent();
     }
 
@@ -100,7 +92,7 @@ public class ExpenseGroupsController : ControllerBase
 
         try
         {
-            var deleted = await _groupService.DeleteGroupAsync(id, userId);
+            var deleted = await groupService.DeleteGroupAsync(id, userId);
 
             if (!deleted)
                 return NotFound();

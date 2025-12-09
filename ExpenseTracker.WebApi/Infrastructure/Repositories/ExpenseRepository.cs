@@ -5,18 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.WebApi.Infrastructure.Repositories;
 
-public class ExpenseRepository : IExpenseRepository
+public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public ExpenseRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-    
     public async Task<List<Expense>> GetAllExpenses(string userId)
     {
-        return await _context.Expenses
+        return await context.Expenses
             .Where(e => e.UserId == userId)
             .Include(e => e.ExpenseGroup) 
             .ToListAsync();
@@ -24,33 +17,33 @@ public class ExpenseRepository : IExpenseRepository
     
     public async Task<Expense?> GetByIdAsync(int id, string userId)
     {
-        return await _context.Expenses
+        return await context.Expenses
             .Include(e => e.ExpenseGroup)
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
     }
     
     public async Task AddAsync(Expense expense)
     {
-        await _context.Expenses.AddAsync(expense);
-        await _context.SaveChangesAsync();
+        await context.Expenses.AddAsync(expense);
+        await context.SaveChangesAsync();
     }
     
     public async Task UpdateAsync(Expense expense)
     {
-        _context.Expenses.Update(expense);
-        await _context.SaveChangesAsync();
+        context.Expenses.Update(expense);
+        await context.SaveChangesAsync();
     }
     
     public async Task DeleteAsync(Expense expense)
     {
-        _context.Expenses.Remove(expense);
-        await _context.SaveChangesAsync();
+        context.Expenses.Remove(expense);
+        await context.SaveChangesAsync();
     }
 
 
     public async Task<ExpenseGroup?> GetGroupByIdAsync(int groupId)
     {
-        return await _context.ExpenseGroups.FirstOrDefaultAsync(g => g.Id == groupId);
+        return await context.ExpenseGroups.FirstOrDefaultAsync(g => g.Id == groupId);
     }
 
 
@@ -63,7 +56,7 @@ public class ExpenseRepository : IExpenseRepository
     )
     {
 
-        var query = _context.Expenses
+        var query = context.Expenses
             .Where(e => e.UserId == userId)
             .Include(e => e.ExpenseGroup)
             .AsQueryable();
@@ -86,6 +79,6 @@ public class ExpenseRepository : IExpenseRepository
 
     public async Task<int> CountExpensesInGroupAsync(int groupId, string userId)
     {
-        return await _context.Expenses.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
+        return await context.Expenses.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
     }
 }

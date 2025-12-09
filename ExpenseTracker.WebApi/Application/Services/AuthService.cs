@@ -8,20 +8,11 @@ using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class AuthService : IAuthService
+public class AuthService(IUserRepository userRepository, ITokenService tokenService) : IAuthService
 {
-     private readonly IUserRepository _userRepository;
-    private readonly ITokenService _tokenService;
-    
-    public AuthService(IUserRepository userRepository, ITokenService tokenService)
-    {
-        _userRepository = userRepository;
-        _tokenService = tokenService;
-    }
-
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
-        if (await _userRepository.GetUserByEmailAsync(request.Email) != null)
+        if (await userRepository.GetUserByEmailAsync(request.Email) != null)
         {
             throw new InvalidOperationException("User with this email already exists");
         }
@@ -36,9 +27,9 @@ public class AuthService : IAuthService
             IsPremium = false 
         };
         
-        var createdUser = await _userRepository.CreateUser(user);
+        var createdUser = await userRepository.CreateUser(user);
         
-        var token = _tokenService.CreateToken(createdUser);
+        var token = tokenService.CreateToken(createdUser);
         
         var userDto = UserMapper.ToDto(createdUser);
 
@@ -51,7 +42,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
-        var user = await _userRepository.GetUserByEmailAsync(request.Email);
+        var user = await userRepository.GetUserByEmailAsync(request.Email);
         
         if (user == null)
         {
@@ -63,7 +54,7 @@ public class AuthService : IAuthService
             throw new UnauthorizedAccessException("Email or password is incorrect");
         }
         
-        var token = _tokenService.CreateToken(user);
+        var token = tokenService.CreateToken(user);
         
         var userDto = UserMapper.ToDto(user);
 
