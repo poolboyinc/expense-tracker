@@ -9,32 +9,32 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
 {
     public async Task<List<ExpenseGroup>> GetAllGroupsAsync(string userId)
     {
-        return await context.ExpenseGroups.Where(g => g.UserId == userId).ToListAsync();
+        return await context.ExpenseGroup.Where(g => g.UserId == userId).ToListAsync();
     }
 
     public async Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
     {
-        return await  context.ExpenseGroups.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+        return await  context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
     }
 
     
     public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group)
     {
-        await context.ExpenseGroups.AddAsync(group);
+        await context.ExpenseGroup.AddAsync(group);
         await context.SaveChangesAsync();
         return group;
     }
     
     public async Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group)
     {
-        context.ExpenseGroups.Update(group);
+        context.ExpenseGroup.Update(group);
         await context.SaveChangesAsync(); 
         return group;
     }
 
     public async Task DeleteGroupAsync(ExpenseGroup group)
     {
-        context.ExpenseGroups.Remove(group);
+        context.ExpenseGroup.Remove(group);
         await context.SaveChangesAsync();
     }
     

@@ -11,7 +11,7 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
 {
     public async Task<Income> CreateIncomeAsync(Income income)
     {
-        await context.Incomes.AddAsync(income);
+        await context.Income.AddAsync(income);
         await context.SaveChangesAsync();
         return income;
     }
@@ -19,14 +19,14 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
     public async Task<Income?> GetIncomeByIdAsync(int id)
     {
 
-        return await context.Incomes
+        return await context.Income
             .Include(i => i.IncomeGroup) 
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 
     public async Task<List<Income>> GetAllIncomesByUserIdAsync(string userId)
     {
-        return await context.Incomes
+        return await context.Income
             .Where(i => i.UserId == userId)
             .Include(i => i.IncomeGroup)
             .OrderByDescending(i => i.Date) 
@@ -35,21 +35,21 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
 
     public async Task<Income> UpdateIncomeAsync(Income income)
     {
-        context.Incomes.Update(income);
+        context.Income.Update(income);
         await context.SaveChangesAsync(); 
         return income;
     }
     
     public async Task<bool> DeleteIncomeAsync(int id)
     {
-        var incomeToDelete = await context.Incomes.FindAsync(id);
+        var incomeToDelete = await context.Income.FindAsync(id);
 
         if (incomeToDelete == null)
         {
             return false;
         }
 
-        context.Incomes.Remove(incomeToDelete);
+        context.Income.Remove(incomeToDelete);
         await context.SaveChangesAsync();
         
         return true; 

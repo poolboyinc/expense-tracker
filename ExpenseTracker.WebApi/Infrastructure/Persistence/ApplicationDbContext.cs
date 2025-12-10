@@ -5,13 +5,13 @@ namespace ExpenseTracker.WebApi.Infrastructure.Persistence;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<Expense> Expenses { get; set; }
-    public DbSet<ExpenseGroup> ExpenseGroups { get; set; }
+    public DbSet<Expense> Expense { get; set; }
+    public DbSet<ExpenseGroup> ExpenseGroup { get; set; }
     
-    public DbSet<Income> Incomes { get; set; }
-    public DbSet<IncomeGroup> IncomeGroups { get; set; }
+    public DbSet<Income> Income { get; set; }
+    public DbSet<IncomeGroup> IncomeGroup { get; set; }
     
-    public DbSet<User> Users { get; set; } 
+    public DbSet<User> User { get; set; } 
     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)

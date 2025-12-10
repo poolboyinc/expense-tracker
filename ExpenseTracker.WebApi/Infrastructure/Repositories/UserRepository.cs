@@ -9,19 +9,19 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 {
     public async Task<User?> GetUserById(string id)
     {
-        return await context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        return await context.User.FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<User> CreateUser(User user)
     {
-        await context.Users.AddAsync(user);
+        await context.User.AddAsync(user);
         await context.SaveChangesAsync();
         return user;
     }
 
     public async Task<User> UpdateUser(User user)
     {
-        context.Users.Update(user);
+        context.User.Update(user);
         
         await context.SaveChangesAsync(); 
         
@@ -30,19 +30,19 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
     public async Task<bool> UserExistsAsync(string userId)
     {
-        return await context.Users.AnyAsync(x => x.Id == userId);
+        return await context.User.AnyAsync(x => x.Id == userId);
     }
 
     public async Task<bool> DeleteUserAsync(string id)
     {
-        var userToDelete = await context.Users.FindAsync(id);
+        var userToDelete = await context.User.FindAsync(id);
 
         if (userToDelete == null)
         {
             return false; 
         }
 
-        context.Users.Remove(userToDelete);
+        context.User.Remove(userToDelete);
         
         await context.SaveChangesAsync();
         
@@ -51,6 +51,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await context.User.FirstOrDefaultAsync(u => u.Email == email);
     }
 }

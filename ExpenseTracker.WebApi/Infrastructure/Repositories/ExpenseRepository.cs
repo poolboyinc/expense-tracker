@@ -9,7 +9,7 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
 {
     public async Task<List<Expense>> GetAllExpenses(string userId)
     {
-        return await context.Expenses
+        return await context.Expense
             .Where(e => e.UserId == userId)
             .Include(e => e.ExpenseGroup) 
             .ToListAsync();
@@ -17,33 +17,33 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
     
     public async Task<Expense?> GetByIdAsync(int id, string userId)
     {
-        return await context.Expenses
+        return await context.Expense
             .Include(e => e.ExpenseGroup)
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
     }
     
     public async Task AddAsync(Expense expense)
     {
-        await context.Expenses.AddAsync(expense);
+        await context.Expense.AddAsync(expense);
         await context.SaveChangesAsync();
     }
     
     public async Task UpdateAsync(Expense expense)
     {
-        context.Expenses.Update(expense);
+        context.Expense.Update(expense);
         await context.SaveChangesAsync();
     }
     
     public async Task DeleteAsync(Expense expense)
     {
-        context.Expenses.Remove(expense);
+        context.Expense.Remove(expense);
         await context.SaveChangesAsync();
     }
 
 
     public async Task<ExpenseGroup?> GetGroupByIdAsync(int groupId)
     {
-        return await context.ExpenseGroups.FirstOrDefaultAsync(g => g.Id == groupId);
+        return await context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == groupId);
     }
 
 
@@ -56,7 +56,7 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
     )
     {
 
-        var query = context.Expenses
+        var query = context.Expense
             .Where(e => e.UserId == userId)
             .Include(e => e.ExpenseGroup)
             .AsQueryable();
@@ -79,6 +79,6 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
 
     public async Task<int> CountExpensesInGroupAsync(int groupId, string userId)
     {
-        return await context.Expenses.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
+        return await context.Expense.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
     }
 }
