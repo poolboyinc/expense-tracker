@@ -15,17 +15,13 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class ExpenseGroupsController(IExpenseGroupService groupService, IUserServiceContext userServiceContext)
     : ControllerBase
 {
-    private string GetCurrentUserId() => userServiceContext.GetCurrentUserId();
-
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ExpenseGroupListDto>>> GetAllGroups()
     {
-        var userId = GetCurrentUserId();
-        var groups = await groupService.GetAllGroupsForUserAsync(userId);
+        var groups = await groupService.GetAllGroupsForUserAsync();
 
-        return Ok(groups.Select(g => g.ToListDto()));
+        return Ok(groups);
     }
 
 
@@ -34,15 +30,14 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ExpenseGroupDetailsDto>> GetGroup(int id)
     {
-        var userId = GetCurrentUserId();
-        var group = await groupService.GetGroupByIdAsync(id, userId);
+        var group = await groupService.GetGroupByIdAsync(id);
 
         if (group == null)
         {
             return NotFound();
         }
 
-        return Ok(group.ToDetailsDto());
+        return Ok(group);
     }
 
    
@@ -50,14 +45,10 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ExpenseGroupDetailsDto>> CreateGroup([FromBody] ExpenseGroupCreateDto dto)
     {
-        var userId = GetCurrentUserId();
-
-        var group = dto.ToEntity(userId);
-
         try
         {
-            var created = await groupService.CreateGroupAsync(group, userId);
-            return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created.ToDetailsDto());
+            var created = await groupService.CreateGroupAsync(dto);
+            return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created);
         }
         catch (InvalidOperationException ex)
         {
@@ -71,17 +62,17 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateGroup(int id, [FromBody] ExpenseGroupUpdateDto dto)
     {
-        var userId = GetCurrentUserId();
-        var existing = await groupService.GetGroupByIdAsync(id, userId);
+        var userId = userServiceContext.GetCurrentUserId();
+        
+        var existing = await groupService.GetGroupByIdAsync(id);
 
         if (existing == null)
         {
             return NotFound("Expense group not found or unauthorized.");
         }
+        
 
-        dto.MapToEntity(existing);
-
-        await groupService.UpdateGroupAsync(existing, userId);
+        await groupService.UpdateGroupAsync(id, dto);
         return NoContent();
     }
 
@@ -92,11 +83,9 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteGroup(int id)
     {
-        var userId = GetCurrentUserId();
-
         try
         {
-            var deleted = await groupService.DeleteGroupAsync(id, userId);
+            var deleted = await groupService.DeleteGroupAsync(id);
 
             if (!deleted)
             {

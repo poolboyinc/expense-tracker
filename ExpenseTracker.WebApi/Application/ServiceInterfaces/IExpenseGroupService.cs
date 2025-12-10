@@ -1,16 +1,17 @@
-﻿using ExpenseTracker.WebApi.Domain.Entities;
+﻿using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
+using ExpenseTracker.WebApi.Domain.Entities;
 
 namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IExpenseGroupService
 {
-    Task<List<ExpenseGroup>> GetAllGroupsForUserAsync(string userId);
+    Task<List<ExpenseGroupListDto>> GetAllGroupsForUserAsync();
     
-    Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId);
+    Task<ExpenseGroupDetailsDto?> GetGroupByIdAsync(int id);
     
-    Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group, string userId);
+    Task<ExpenseGroupDetailsDto> CreateGroupAsync(ExpenseGroupCreateDto dto);
     
-    Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group, string userId);
+    Task<ExpenseGroupDetailsDto> UpdateGroupAsync(int id, ExpenseGroupUpdateDto dto);
     
-    Task<bool> DeleteGroupAsync(int id, string userId);
+    Task<bool> DeleteGroupAsync(int id);
 }

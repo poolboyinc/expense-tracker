@@ -1,15 +1,18 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+﻿using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
+using ExpenseTracker.WebApi.Application.Mappers;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class ExpenseGroupService(IExpenseGroupRepository groupRepository, IExpenseRepository expenseRepository)
+public class ExpenseGroupService(IExpenseGroupRepository groupRepository, IExpenseRepository expenseRepository, IUserServiceContext userServiceContext)
     : IExpenseGroupService
 {
-    public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group, string userId)
+    public async Task<ExpenseGroupDetailsDto> CreateGroupAsync(ExpenseGroupCreateDto dto)
     {
-        group.UserId = userId;
+        var userId = userServiceContext.GetCurrentUserId();
+        var group = dto.ToEntity(userId);
         
         var existingGroups = await groupRepository.GetAllGroupsAsync(userId);
         if (existingGroups.Any(g => g.Name.Equals(group.Name, StringComparison.OrdinalIgnoreCase)))
@@ -17,51 +20,72 @@ public class ExpenseGroupService(IExpenseGroupRepository groupRepository, IExpen
             throw new InvalidOperationException($"Expense group with name '{group.Name}' already exists for this user.");
         }
 
-        return await groupRepository.CreateGroupAsync(group);
+        await groupRepository.CreateGroupAsync(group);
+
+        return group.ToDetailsDto();
     }
     
-    public Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
+    public async Task<ExpenseGroupDetailsDto?> GetGroupByIdAsync(int id)
     {
-        return groupRepository.GetGroupByIdAsync(id, userId);
+        var userId = userServiceContext.GetCurrentUserId();
+        
+        var group = await groupRepository.GetGroupByIdAsync(id, userId);
+
+        if (group == null)
+        {
+            return null;
+        }
+        
+        return group.ToDetailsDto();
     }
     
-    public Task<List<ExpenseGroup>> GetAllGroupsForUserAsync(string userId)
+    public async Task<List<ExpenseGroupListDto>> GetAllGroupsForUserAsync()
     {
-        return groupRepository.GetAllGroupsAsync(userId);
+        var userId = userServiceContext.GetCurrentUserId();
+        
+        var groups = await groupRepository.GetAllGroupsAsync(userId);
+        
+        return groups.Select(ExpenseGroupMapper.ToListDto).ToList();
     }
     
-    public async Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group, string userId)
+    public async Task<ExpenseGroupDetailsDto> UpdateGroupAsync(int id, ExpenseGroupUpdateDto dto)
     {
-        var existingGroup = await GetGroupByIdAsync(group.Id, userId);
+        var userId = userServiceContext.GetCurrentUserId();
+
+        var existingGroup = await groupRepository.GetGroupByIdAsync(id, userId);
+        
         if (existingGroup == null)
         {
             throw new KeyNotFoundException($"Expense Group with this ID not found or unauthorized.");
         }
         
-        existingGroup.Name = group.Name;
-        existingGroup.MonthlyLimit = group.MonthlyLimit;
+        existingGroup.Name = dto.Name;
+        existingGroup.MonthlyLimit = dto.MonthlyLimit;
         
-        return await groupRepository.UpdateGroupAsync(existingGroup);
+        return existingGroup.ToDetailsDto();
     }
     
-    public async Task<bool> DeleteGroupAsync(int id, string userId)
+    public async Task<bool> DeleteGroupAsync(int id)
     {
-        var groupToDelete = await GetGroupByIdAsync(id, userId);
+        var userId = userServiceContext.GetCurrentUserId();
         
-        if (groupToDelete == null)
-        {
-            return false;
-        }
+        var existingGroup = await groupRepository.GetGroupByIdAsync(id, userId);
         
         var expensesCount = await expenseRepository.CountExpensesInGroupAsync(id, userId);
-        
-        if (expensesCount > 0)
+
+        if (existingGroup == null)
         {
-            throw new InvalidOperationException($"Cannot delete group.");
+            return false; 
         }
 
-        await groupRepository.DeleteGroupAsync(groupToDelete);
+        //we will work on enabling cascade deletion
+        if (expensesCount > 0)
+        {
+            throw new InvalidOperationException("Cannot delete group - there are some expenses left in it.");
+        }
 
+        await groupRepository.DeleteGroupAsync(existingGroup);
+        
         return true;
     }
 }
