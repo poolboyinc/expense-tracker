@@ -5,6 +5,19 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class UserMapper
 {
-    public static UserDto ToDto(User user) =>
-        new(user.Id, user.Email, user.Name);
+    public static UserDto ToDto(this User user) =>
+        new UserDto(
+            user.Id, 
+            user.Email, 
+            user.Name
+        );
+    
+    public static User ToEntity(this UserDto dto) =>
+        new User
+        {
+            Id = dto.Id,
+            Email = dto.Email,
+            Name = dto.Name,
+        };
+    
 }

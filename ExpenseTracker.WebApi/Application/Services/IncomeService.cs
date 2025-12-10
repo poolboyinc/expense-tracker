@@ -60,9 +60,9 @@ public class IncomeService(
         return incomes.Select(IncomeMapper.ToDto).ToList();
     } 
     
-    public async Task UpdateIncomeAsync(IncomeUpdateDto dto)
+    public async Task UpdateIncomeAsync(int id,IncomeUpdateDto dto)
     {
-        var existingIncome = await incomeRepository.GetIncomeByIdAsync(dto.Id);
+        var existingIncome = await incomeRepository.GetIncomeByIdAsync(id);
         
         if (existingIncome == null)
         {

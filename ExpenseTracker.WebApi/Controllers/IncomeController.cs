@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using ExpenseTracker.WebApi.Application.DTOs.Income;
-using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -61,12 +60,12 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> UpdateIncome(int id, [FromBody] IncomeUpdateDto dto)
     {
-        if (id != dto.Id || !ModelState.IsValid)
+        if (incomeService.GetIncomeByIdAsync(id).Result == null)
         {
-            return BadRequest();
+            return NotFound();
         }
         
-        await incomeService.UpdateIncomeAsync(dto);
+        await incomeService.UpdateIncomeAsync(id, dto);
         
         return NoContent();
     }

@@ -11,7 +11,7 @@ public interface IIncomeService
     
     Task<List<IncomeDto>> GetAllIncomesForUserAsync();
     
-    Task UpdateIncomeAsync(IncomeUpdateDto dto);
+    Task UpdateIncomeAsync(int id, IncomeUpdateDto dto);
     
     Task<bool> DeleteIncomeAsync(int id);
 }

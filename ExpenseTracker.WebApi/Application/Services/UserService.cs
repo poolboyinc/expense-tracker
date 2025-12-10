@@ -1,4 +1,6 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+﻿using ExpenseTracker.WebApi.Application.DTOs.User;
+using ExpenseTracker.WebApi.Application.Mappers;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
@@ -6,9 +8,16 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {
-    public Task<User?> GetUserByIdAsync(string id)
+    public async Task<UserDto?> GetUserByIdAsync(string id)
     {
-        return userRepository.GetUserById(id);
+        var userEntity = await userRepository.GetUserById(id);
+        
+        if (userEntity == null)
+        {
+            return null;
+        }
+        
+        return userEntity.ToDto(); 
     }
     
 
@@ -17,9 +26,21 @@ public class UserService(IUserRepository userRepository) : IUserService
         return userRepository.UserExistsAsync(userId);
     }
 
-    public Task<User> UpdateUserAsync(User user)
+    public async Task<UserDto> UpdateUserAsync(UserDto dto)
     {
-        return  userRepository.UpdateUser(user);
+        var existingUser = await userRepository.GetUserById(dto.Id);
+        
+        if (existingUser == null)
+        {
+            throw new KeyNotFoundException($"User with ID {dto.Id} not found.");
+        }
+        
+        existingUser.Email = dto.Email;
+        existingUser.Name = dto.Name;
+        
+        var updatedEntity = await userRepository.UpdateUser(existingUser);
+        
+        return updatedEntity.ToDto();
     }
     
 

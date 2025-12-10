@@ -31,7 +31,7 @@ public class UsersController(IUserService userService) : ControllerBase
             return NotFound("User not found.");
         }
 
-        return Ok(UserMapper.ToDto(user));
+        return Ok(user);
     }
     
     
