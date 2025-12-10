@@ -1,16 +1,17 @@
-﻿using ExpenseTracker.WebApi.Domain.Entities;
+﻿using ExpenseTracker.WebApi.Application.DTOs.Income;
+using ExpenseTracker.WebApi.Domain.Entities;
 
 namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IIncomeService
 {
-    Task<Income> CreateIncomeAsync(Income income, string userId);
+    Task<IncomeDto> CreateIncomeAsync(IncomeCreateDto income);
     
-    Task<Income?> GetIncomeByIdAsync(int id, string userId);
+    Task<IncomeDto?> GetIncomeByIdAsync(int id);
     
-    Task<List<Income>> GetAllIncomesForUserAsync(string userId);
+    Task<List<IncomeDto>> GetAllIncomesForUserAsync();
     
-    Task<Income> UpdateIncomeAsync(Income income, string userId);
+    Task UpdateIncomeAsync(IncomeUpdateDto dto);
     
-    Task<bool> DeleteIncomeAsync(int id, string userId);
+    Task<bool> DeleteIncomeAsync(int id);
 }

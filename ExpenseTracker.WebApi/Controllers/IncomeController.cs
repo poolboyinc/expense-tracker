@@ -19,10 +19,8 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Income>))]
     public async Task<IActionResult> GetAllIncomes()
     {
-        var userId = userServiceContext.GetCurrentUserId();
-        var incomes = await incomeService.GetAllIncomesForUserAsync(userId);
-        var dtoList = incomes.Select(IncomeMapper.ToDto);
-        return Ok(dtoList);
+        var incomes = await incomeService.GetAllIncomesForUserAsync();
+        return Ok(incomes);
     }
 
 
@@ -31,15 +29,15 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetIncome(int id)
     {
-        var userId = userServiceContext.GetCurrentUserId();;
-        var income = await incomeService.GetIncomeByIdAsync(id, userId);
+        var userId = userServiceContext.GetCurrentUserId();
+        var income = await incomeService.GetIncomeByIdAsync(id);
         
         if (income == null)
         {
             return NotFound();
         }
         
-        return Ok(IncomeMapper.ToDto(income));
+        return Ok(income);
     }
 
 
@@ -53,10 +51,8 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
             return BadRequest(ModelState);
         }
         
-        var userId = userServiceContext.GetCurrentUserId();
-        var income = IncomeMapper.FromCreateDto(dto);
-        var createdIncome = await incomeService.CreateIncomeAsync(income, userId);
-        return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, IncomeMapper.ToDto(createdIncome));
+        var createdIncome = await incomeService.CreateIncomeAsync(dto);
+        return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, createdIncome);
     }
     
     [HttpPut("{id}")]
@@ -70,16 +66,8 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
             return BadRequest();
         }
         
-        var userId = userServiceContext.GetCurrentUserId();
-        var existingIncome = await incomeService.GetIncomeByIdAsync(id, userId);
-
-        if (existingIncome == null)
-        {
-            return NotFound();
-        }
-
-        IncomeMapper.UpdateEntity(existingIncome, dto);
-        await incomeService.UpdateIncomeAsync(existingIncome, userId);
+        await incomeService.UpdateIncomeAsync(dto);
+        
         return NoContent();
     }
 
@@ -90,7 +78,7 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     public async Task<IActionResult> DeleteIncome(int id)
     {
         var userId = userServiceContext.GetCurrentUserId();
-        var deleted = await incomeService.DeleteIncomeAsync(id, userId);
+        var deleted = await incomeService.DeleteIncomeAsync(id);
 
         if (!deleted)
         {

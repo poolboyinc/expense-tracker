@@ -1,4 +1,6 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+﻿using ExpenseTracker.WebApi.Application.DTOs.Income;
+using ExpenseTracker.WebApi.Application.Mappers;
+using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
@@ -6,8 +8,7 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class IncomeService(
     IIncomeRepository incomeRepository,
-    IUserServiceContext userServiceContext,
-    IExpenseGroupRepository groupRepository)
+    IUserServiceContext userServiceContext)
     : IIncomeService
 {
     private async Task ValidateIncomeDataAsync(Income income)
@@ -19,57 +20,63 @@ public class IncomeService(
             throw new KeyNotFoundException($"User with this ID not found.");
         }
         
-        var expenseGroup = await groupRepository.GetGroupByIdAsync(income.IncomeGroupId, userId); 
-        if (expenseGroup == null)
+        var incomeGroup = await incomeRepository.GetIncomeByIdAsync(income.Id);
+
+        if (incomeGroup == null)
         {
-            throw new KeyNotFoundException($"Income Group with this ID not found.");
+            throw new KeyNotFoundException($"Income with ID  not found.");
         }
     }
     
-    public async Task<Income> CreateIncomeAsync(Income income, string userId)
+    public async Task<IncomeDto> CreateIncomeAsync(IncomeCreateDto dto)
     {
-        income.UserId = userId; 
+        var income = IncomeMapper.FromCreateDto(dto);
+        
+        income.UserId = userServiceContext.GetCurrentUserId();
         
         await ValidateIncomeDataAsync(income);
 
-        return await incomeRepository.CreateIncomeAsync(income);
+        await incomeRepository.CreateIncomeAsync(income);
+        
+        return IncomeMapper.ToDto(income);
     }
     
-    public async Task<Income?> GetIncomeByIdAsync(int id, string userId)
+    public async Task<IncomeDto?> GetIncomeByIdAsync(int id)
     {
         var income = await incomeRepository.GetIncomeByIdAsync(id);
         
-        if (income != null && income.UserId != userId)
+        if (income == null)
         {
             return null; 
         }
 
-        return income;
-    }
+        return IncomeMapper.ToDto(income);
+    } 
     
-    public Task<List<Income>> GetAllIncomesForUserAsync(string userId)
+    public async Task<List<IncomeDto>> GetAllIncomesForUserAsync()
     {
-        return incomeRepository.GetAllIncomesByUserIdAsync(userId);
-    }
+        var userId = userServiceContext.GetCurrentUserId();
+        var incomes = await incomeRepository.GetAllIncomesByUserIdAsync(userId);
+        return incomes.Select(IncomeMapper.ToDto).ToList();
+    } 
     
-    public async Task<Income> UpdateIncomeAsync(Income income, string userId)
+    public async Task UpdateIncomeAsync(IncomeUpdateDto dto)
     {
-        var existingIncome = await GetIncomeByIdAsync(income.Id, userId);
+        var existingIncome = await incomeRepository.GetIncomeByIdAsync(dto.Id);
+        
         if (existingIncome == null)
         {
             throw new KeyNotFoundException($"Income with ID  not found or you do not have permission.");
         }
         
-        income.UserId = userId; 
+        await ValidateIncomeDataAsync(existingIncome);
         
-        await ValidateIncomeDataAsync(income);
-        
-        return await incomeRepository.UpdateIncomeAsync(income);
+        await incomeRepository.UpdateIncomeAsync(existingIncome);
     }
     
-    public async Task<bool> DeleteIncomeAsync(int id, string userId)
+    public async Task<bool> DeleteIncomeAsync(int id)
     {
-        var incomeToDelete = await GetIncomeByIdAsync(id, userId);
+        var incomeToDelete = await incomeRepository.GetIncomeByIdAsync(id);
 
         if (incomeToDelete == null)
         {
