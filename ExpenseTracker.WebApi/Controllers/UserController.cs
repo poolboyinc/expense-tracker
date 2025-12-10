@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using ExpenseTracker.WebApi.Application.DTOs.User;
-using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
-using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,11 +31,11 @@ public class UsersController(IUserService userService) : ControllerBase
 
         return Ok(user);
     }
-    
-    
+
+
     [HttpDelete("me")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)] 
-    [ProducesResponseType(StatusCodes.Status404NotFound)] 
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMe()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

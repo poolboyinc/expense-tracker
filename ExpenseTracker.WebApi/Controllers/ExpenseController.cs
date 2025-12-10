@@ -1,8 +1,5 @@
 ﻿using ExpenseTracker.WebApi.Application.DTOs.Expense;
-using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
-using ExpenseTracker.WebApi.Domain.Entities;
-using ExpenseTracker.WebApi.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,10 +11,10 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
     : ControllerBase
 {
-    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseQueryParameters parameters)
+    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses(
+        [FromQuery] ExpenseQueryParameters parameters)
     {
         var userId = userServiceContext.GetCurrentUserId();
 
@@ -51,7 +48,6 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ExpenseDetailsDto>> CreateExpense([FromBody] ExpenseCreateDto dto)
     {
-        
         try
         {
             var created = await expenseService.CreateExpenseAsync(dto);
@@ -66,7 +62,6 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         {
             return BadRequest(ex.Message);
         }
-
     }
 
     [HttpPut("{id}")]
@@ -105,7 +100,7 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
         catch (UnauthorizedAccessException)
         {
-            return Forbid(); 
+            return Forbid();
         }
         catch (InvalidOperationException ex)
         {
@@ -113,5 +108,3 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
     }
 }
-
-

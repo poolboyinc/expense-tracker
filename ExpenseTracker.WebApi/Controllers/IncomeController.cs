@@ -9,11 +9,10 @@ namespace ExpenseTracker.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] 
+[Authorize]
 public class IncomeController(IIncomeService incomeService, IUserServiceContext userServiceContext)
     : ControllerBase
 {
-    
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(List<Income>))]
     public async Task<IActionResult> GetAllIncomes()
@@ -30,12 +29,12 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     {
         var userId = userServiceContext.GetCurrentUserId();
         var income = await incomeService.GetIncomeByIdAsync(id);
-        
+
         if (income == null)
         {
             return NotFound();
         }
-        
+
         return Ok(income);
     }
 
@@ -49,11 +48,11 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
         {
             return BadRequest(ModelState);
         }
-        
+
         var createdIncome = await incomeService.CreateIncomeAsync(dto);
         return CreatedAtAction(nameof(GetIncome), new { id = createdIncome.Id }, createdIncome);
     }
-    
+
     [HttpPut("{id}")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -64,13 +63,13 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
         {
             return NotFound();
         }
-        
+
         await incomeService.UpdateIncomeAsync(id, dto);
-        
+
         return NoContent();
     }
 
- 
+
     [HttpDelete("{id}")]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -83,7 +82,7 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
         {
             return NotFound();
         }
-        
+
         return NoContent();
     }
 }

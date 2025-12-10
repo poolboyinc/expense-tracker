@@ -7,33 +7,25 @@ namespace ExpenseTracker.WebApi.Infrastructure.Repositories;
 
 public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepository
 {
-    public async Task<List<Expense>> GetAllExpenses(string userId)
-    {
-        return await context.Expense
-            .Where(e => e.UserId == userId)
-            .Include(e => e.ExpenseGroup) 
-            .ToListAsync();
-    }
-    
     public async Task<Expense?> GetByIdAsync(int id, string userId)
     {
         return await context.Expense
             .Include(e => e.ExpenseGroup)
             .FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
     }
-    
+
     public async Task AddAsync(Expense expense)
     {
         await context.Expense.AddAsync(expense);
         await context.SaveChangesAsync();
     }
-    
+
     public async Task UpdateAsync(Expense expense)
     {
         context.Expense.Update(expense);
         await context.SaveChangesAsync();
     }
-    
+
     public async Task DeleteAsync(Expense expense)
     {
         context.Expense.Remove(expense);
@@ -55,7 +47,6 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
         int pageSize
     )
     {
-
         var query = context.Expense
             .Where(e => e.UserId == userId)
             .Include(e => e.ExpenseGroup)
@@ -80,5 +71,13 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
     public async Task<int> CountExpensesInGroupAsync(int groupId, string userId)
     {
         return await context.Expense.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
+    }
+
+    public async Task<List<Expense>> GetAllExpenses(string userId)
+    {
+        return await context.Expense
+            .Where(e => e.UserId == userId)
+            .Include(e => e.ExpenseGroup)
+            .ToListAsync();
     }
 }

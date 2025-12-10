@@ -7,10 +7,9 @@ public class Income
     public string Description { get; set; } = string.Empty;
     public DateTime Date { get; set; }
     public bool IsScheduled { get; set; } = false;
-    
+
     public int IncomeGroupId { get; set; }
     public IncomeGroup IncomeGroup { get; set; } = null!;
-    
+
     public string UserId { get; set; } = string.Empty;
-   
 }

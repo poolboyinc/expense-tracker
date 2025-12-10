@@ -16,7 +16,7 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
     {
         return await context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
     }
-    
+
     public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group)
     {
         await context.ExpenseGroup.AddAsync(group);

@@ -8,12 +8,12 @@ public class UserServiceContext(IHttpContextAccessor httpContextAccessor) : IUse
     public string GetCurrentUserId()
     {
         var httpContext = httpContextAccessor.HttpContext;
-        
+
         if (httpContext?.User == null || !httpContext.User.Identity!.IsAuthenticated)
         {
             throw new UnauthorizedAccessException("User was not authenticated");
         }
-        
+
         var userId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userId))

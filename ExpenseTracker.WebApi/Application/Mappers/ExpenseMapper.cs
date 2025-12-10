@@ -5,8 +5,9 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class ExpenseMapper
 {
-    public static Expense ToEntity(this ExpenseCreateDto dto, string userId) =>
-        new Expense
+    public static Expense ToEntity(this ExpenseCreateDto dto, string userId)
+    {
+        return new Expense()
         {
             Amount = dto.Amount,
             Description = dto.Description,
@@ -14,9 +15,11 @@ public static class ExpenseMapper
             ExpenseGroupId = dto.ExpenseGroupId,
             UserId = userId
         };
+    }
 
-    public static Expense ToEntity(this ExpenseUpdateDto dto, int id, string userId) =>
-        new Expense
+    public static Expense ToEntity(this ExpenseUpdateDto dto, int id, string userId)
+    {
+        return new Expense()
         {
             Id = id,
             Amount = dto.Amount,
@@ -25,9 +28,11 @@ public static class ExpenseMapper
             ExpenseGroupId = dto.ExpenseGroupId,
             UserId = userId
         };
+    }
 
-    public static ExpenseDetailsDto ToDetailsDto(this Expense e) =>
-        new ExpenseDetailsDto(
+    public static ExpenseDetailsDto ToDetailsDto(this Expense e)
+    {
+        return new ExpenseDetailsDto(
             e.Id,
             e.Amount,
             e.Description,
@@ -36,9 +41,11 @@ public static class ExpenseMapper
             e.ExpenseGroup?.Name ?? "",
             e.IsScheduled
         );
+    }
 
-    public static ExpenseListDto ToListDto(this Expense e) =>
-        new ExpenseListDto(
+    public static ExpenseListDto ToListDto(this Expense e)
+    {
+        return new ExpenseListDto(
             e.Id,
             e.Amount,
             e.Description,
@@ -46,4 +53,5 @@ public static class ExpenseMapper
             e.ExpenseGroupId,
             e.ExpenseGroup?.Name ?? ""
         );
+    }
 }

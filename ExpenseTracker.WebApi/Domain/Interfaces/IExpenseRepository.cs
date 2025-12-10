@@ -9,14 +9,14 @@ public interface IExpenseRepository
     Task UpdateAsync(Expense expense);
     Task DeleteAsync(Expense expense);
     Task<ExpenseGroup?> GetGroupByIdAsync(int groupId);
-    
+
     Task<List<Expense>> GetExpensesAsync(
         string userId,
         int? groupId,
         string? searchTerm,
         int pageNumber,
         int pageSize
-        );
-    
+    );
+
     Task<int> CountExpensesInGroupAsync(int groupId, string userId);
 }

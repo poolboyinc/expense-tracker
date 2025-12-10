@@ -3,6 +3,6 @@
 public interface IUserServiceContext
 {
     string GetCurrentUserId();
-    
+
     bool IsAuthenticated();
 }

@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
-using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
-using ExpenseTracker.WebApi.Application.Mappers;
+﻿using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
-using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,7 +36,7 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
         return Ok(group);
     }
 
-   
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ExpenseGroupDetailsDto>> CreateGroup([FromBody] ExpenseGroupCreateDto dto)
@@ -52,7 +48,7 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { Message = ex.Message });
+            return BadRequest(new { ex.Message });
         }
     }
 
@@ -63,14 +59,14 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
     public async Task<IActionResult> UpdateGroup(int id, [FromBody] ExpenseGroupUpdateDto dto)
     {
         var userId = userServiceContext.GetCurrentUserId();
-        
+
         var existing = await groupService.GetGroupByIdAsync(id);
 
         if (existing == null)
         {
             return NotFound("Expense group not found or unauthorized.");
         }
-        
+
 
         await groupService.UpdateGroupAsync(id, dto);
         return NoContent();
@@ -96,7 +92,7 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
         }
         catch (InvalidOperationException ex)
         {
-            return Conflict(new { Message = ex.Message });
+            return Conflict(new { ex.Message });
         }
     }
 }

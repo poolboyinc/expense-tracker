@@ -5,13 +5,15 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class ExpenseGroupMapper
 {
-    public static ExpenseGroup ToEntity(this ExpenseGroupCreateDto dto, string userId) =>
-        new ExpenseGroup
+    public static ExpenseGroup ToEntity(this ExpenseGroupCreateDto dto, string userId)
+    {
+        return new ExpenseGroup()
         {
             UserId = userId,
             Name = dto.Name,
             MonthlyLimit = dto.MonthlyLimit
         };
+    }
 
     public static void MapToEntity(this ExpenseGroupUpdateDto dto, ExpenseGroup entity)
     {
@@ -19,19 +21,23 @@ public static class ExpenseGroupMapper
         entity.MonthlyLimit = dto.MonthlyLimit;
     }
 
-    public static ExpenseGroupDetailsDto ToDetailsDto(this ExpenseGroup group) =>
-        new ExpenseGroupDetailsDto(
+    public static ExpenseGroupDetailsDto ToDetailsDto(this ExpenseGroup group)
+    {
+        return new ExpenseGroupDetailsDto(
             group.Id,
             group.Name,
             group.MonthlyLimit,
             group.Expenses.Count
         );
+    }
 
-    public static ExpenseGroupListDto ToListDto(this ExpenseGroup group) =>
-        new ExpenseGroupListDto(
+    public static ExpenseGroupListDto ToListDto(this ExpenseGroup group)
+    {
+        return new ExpenseGroupListDto(
             group.Id,
             group.Name,
             group.MonthlyLimit,
             group.Expenses.Count
         );
+    }
 }

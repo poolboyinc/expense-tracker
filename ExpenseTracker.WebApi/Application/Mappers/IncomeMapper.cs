@@ -5,8 +5,9 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class IncomeMapper
 {
-    public static IncomeDto ToDto(Income income) =>
-        new IncomeDto(
+    public static IncomeDto ToDto(Income income)
+    {
+        return new IncomeDto(
             income.Id,
             income.Amount,
             income.Description,
@@ -15,9 +16,11 @@ public static class IncomeMapper
             income.IncomeGroupId,
             income.IncomeGroup?.Name ?? string.Empty
         );
+    }
 
-    public static Income FromCreateDto(IncomeCreateDto dto) =>
-        new Income
+    public static Income FromCreateDto(IncomeCreateDto dto)
+    {
+        return new Income()
         {
             Amount = dto.Amount,
             Description = dto.Description,
@@ -25,6 +28,7 @@ public static class IncomeMapper
             IsScheduled = dto.IsScheduled,
             IncomeGroupId = dto.IncomeGroupId
         };
+    }
 
     public static void UpdateEntity(Income income, IncomeUpdateDto dto)
     {

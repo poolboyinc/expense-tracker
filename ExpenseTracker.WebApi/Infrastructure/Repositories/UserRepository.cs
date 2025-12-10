@@ -22,9 +22,9 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     public async Task<User> UpdateUser(User user)
     {
         context.User.Update(user);
-        
-        await context.SaveChangesAsync(); 
-        
+
+        await context.SaveChangesAsync();
+
         return user;
     }
 
@@ -39,16 +39,16 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
         if (userToDelete == null)
         {
-            return false; 
+            return false;
         }
 
         context.User.Remove(userToDelete);
-        
+
         await context.SaveChangesAsync();
-        
-        return true; 
+
+        return true;
     }
-    
+
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await context.User.FirstOrDefaultAsync(u => u.Email == email);

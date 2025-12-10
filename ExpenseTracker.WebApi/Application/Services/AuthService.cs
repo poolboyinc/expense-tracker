@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
 using ExpenseTracker.WebApi.Application.DTOs.Auth;
 using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
@@ -13,27 +12,27 @@ public class AuthService(IUserRepository userRepository, ITokenService tokenServ
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
         var userCheck = await userRepository.GetUserByEmailAsync(request.Email);
-        
+
         if (userCheck != null)
         {
             throw new InvalidOperationException("User with this email already exists");
         }
-        
+
         var passwordHash = HashPassword(request.Password);
-        
+
         var user = new User
         {
             Email = request.Email,
             Name = request.Name,
             PasswordHash = passwordHash,
-            IsPremium = false 
+            IsPremium = false
         };
-        
+
         var createdUser = await userRepository.CreateUser(user);
-        
+
         var token = tokenService.CreateToken(createdUser);
-        
-        var userDto = UserMapper.ToDto(createdUser);
+
+        var userDto = createdUser.ToDto();
 
         return new AuthResponse(
             userDto,
@@ -45,20 +44,20 @@ public class AuthService(IUserRepository userRepository, ITokenService tokenServ
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
         var user = await userRepository.GetUserByEmailAsync(request.Email);
-        
+
         if (user == null)
         {
             throw new UnauthorizedAccessException("Email or password is incorrect");
         }
-        
+
         if (!VerifyPassword(request.Password, user.PasswordHash))
         {
             throw new UnauthorizedAccessException("Email or password is incorrect");
         }
-        
+
         var token = tokenService.CreateToken(user);
-        
-        var userDto = UserMapper.ToDto(user);
+
+        var userDto = user.ToDto();
 
         return new AuthResponse(
             userDto,
@@ -66,39 +65,39 @@ public class AuthService(IUserRepository userRepository, ITokenService tokenServ
             DateTime.UtcNow.AddDays(7)
         );
     }
-    
-    
+
+
     private static string HashPassword(string password)
     {
-        byte[] salt = RandomNumberGenerator.GetBytes(16);
+        var salt = RandomNumberGenerator.GetBytes(16);
 
-        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
             password,
             salt,
-            100_000,                
+            100_000,
             HashAlgorithmName.SHA256,
-            32                       
+            32
         );
-        
-        byte[] combined = new byte[salt.Length + hash.Length];
+
+        var combined = new byte[salt.Length + hash.Length];
         Buffer.BlockCopy(salt, 0, combined, 0, salt.Length);
         Buffer.BlockCopy(hash, 0, combined, salt.Length, hash.Length);
 
         return Convert.ToBase64String(combined);
     }
-    
-    
+
+
     private static bool VerifyPassword(string password, string storedHash)
     {
-        byte[] combined = Convert.FromBase64String(storedHash);
+        var combined = Convert.FromBase64String(storedHash);
 
-        byte[] salt = new byte[16];
-        byte[] storedHashBytes = new byte[32];
+        var salt = new byte[16];
+        var storedHashBytes = new byte[32];
 
         Buffer.BlockCopy(combined, 0, salt, 0, 16);
         Buffer.BlockCopy(combined, 16, storedHashBytes, 0, 32);
 
-        byte[] computedHash = Rfc2898DeriveBytes.Pbkdf2(
+        var computedHash = Rfc2898DeriveBytes.Pbkdf2(
             password,
             salt,
             100_000,
@@ -108,5 +107,4 @@ public class AuthService(IUserRepository userRepository, ITokenService tokenServ
 
         return CryptographicOperations.FixedTimeEquals(storedHashBytes, computedHash);
     }
-
 }
