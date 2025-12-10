@@ -1,7 +1,6 @@
 ﻿using ExpenseTracker.WebApi.Application.DTOs.ExpenseGroup;
 using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
-using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;

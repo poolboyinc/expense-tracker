@@ -14,9 +14,8 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
 
     public async Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
     {
-        return await  context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
+        return await context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
     }
-
     
     public async Task<ExpenseGroup> CreateGroupAsync(ExpenseGroup group)
     {
@@ -24,11 +23,11 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
         await context.SaveChangesAsync();
         return group;
     }
-    
+
     public async Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group)
     {
         context.ExpenseGroup.Update(group);
-        await context.SaveChangesAsync(); 
+        await context.SaveChangesAsync();
         return group;
     }
 
@@ -37,6 +36,4 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
         context.ExpenseGroup.Remove(group);
         await context.SaveChangesAsync();
     }
-    
-    
 }
