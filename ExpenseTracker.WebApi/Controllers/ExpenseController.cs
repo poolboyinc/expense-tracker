@@ -14,18 +14,10 @@ namespace ExpenseTracker.WebApi.Controllers;
 public class ExpenseController(IExpenseService expenseService, IUserServiceContext userServiceContext)
     : ControllerBase
 {
-    public class ExpenseParameters
-    {
-        public int? GroupId { get; set; }
-        public string? SearchTerm { get; set; }
-        public int PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
-        //public string SortBy { get; set; } = "date"; 
-    }
-
+    
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseParameters parameters)
+    public async Task<ActionResult<IEnumerable<ExpenseListDto>>> GetExpenses([FromQuery] ExpenseQueryParameters parameters)
     {
         var userId = userServiceContext.GetCurrentUserId();
 
@@ -50,7 +42,9 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         var expense = await expenseService.GetExpenseByIdAsync(id, userId);
 
         if (expense == null)
+        {
             return NotFound("Expense was not found");
+        }
 
         return Ok(expense.ToDetailsDto());
     }
@@ -75,8 +69,9 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
+
     }
 
     [HttpPut("{id}")]
@@ -94,11 +89,11 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
         }
         catch (UnauthorizedAccessException)
         {
-            return NotFound("Expense was not found");
+            return Forbid();
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(ex.Message);
+            return BadRequest(ex.Message);
         }
     }
 
@@ -113,9 +108,17 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
             await expenseService.DeleteExpenseAsync(id, userId);
             return NoContent();
         }
-        catch (InvalidOperationException)
+        catch (KeyNotFoundException)
         {
-            return NotFound("Expense was not found");
+            return NotFound("Expense not found");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid(); 
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 }

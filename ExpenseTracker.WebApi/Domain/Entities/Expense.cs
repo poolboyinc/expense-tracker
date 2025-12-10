@@ -1,5 +1,5 @@
 ﻿namespace ExpenseTracker.WebApi.Domain.Entities;
-
+#nullable disable
 public class Expense
 {
     public int Id  { get; set; }
@@ -12,7 +12,7 @@ public class Expense
     
     public int ExpenseGroupId { get; set; }
 
-    public ExpenseGroup ExpenseGroup { get; set; } = default!;
+    public ExpenseGroup ExpenseGroup { get; set; } 
     
     public bool IsScheduled { get; set; }
     
