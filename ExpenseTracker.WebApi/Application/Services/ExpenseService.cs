@@ -76,11 +76,8 @@ public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceCo
                 throw new InvalidOperationException();
             }
         }
-
-        existingExpense.Amount = dto.Amount;
-        existingExpense.Description = dto.Description;
-        existingExpense.ExpenseGroupId = dto.ExpenseGroupId;
-        existingExpense.TransactionDate = dto.Date;
+        
+        dto.MapUpdateToEntity(existingExpense);
 
         await expenseRepository.UpdateAsync(existingExpense);
     }

@@ -7,7 +7,6 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class ExpenseGroupService(
     IExpenseGroupRepository groupRepository,
-    IExpenseRepository expenseRepository,
     IUserServiceContext userServiceContext)
     : IExpenseGroupService
 {
@@ -16,8 +15,9 @@ public class ExpenseGroupService(
         var userId = userServiceContext.GetCurrentUserId();
         var group = dto.ToEntity(userId);
 
-        var existingGroups = await groupRepository.GetAllGroupsAsync(userId);
-        if (existingGroups.Any(g => g.Name.Equals(group.Name, StringComparison.OrdinalIgnoreCase)))
+        var groupExists = await groupRepository.ExistsByNameAsync(group.Name, userId);
+
+        if (groupExists)
         {
             throw new InvalidOperationException(
                 $"Expense group with name '{group.Name}' already exists for this user.");
@@ -67,25 +67,15 @@ public class ExpenseGroupService(
 
         return existingGroup.ToDetailsDto();
     }
-
+    
     public async Task<bool> DeleteGroupAsync(int id)
     {
         var userId = userServiceContext.GetCurrentUserId();
 
         var existingGroup = await groupRepository.GetGroupByIdAsync(id, userId);
 
-        var expensesCount = await expenseRepository.CountExpensesInGroupAsync(id, userId);
-
         if (existingGroup == null)
-        {
             return false;
-        }
-
-        //we will work on enabling cascade deletion
-        if (expensesCount > 0)
-        {
-            throw new InvalidOperationException("Cannot delete group - there are some expenses left in it.");
-        }
 
         await groupRepository.DeleteGroupAsync(existingGroup);
 

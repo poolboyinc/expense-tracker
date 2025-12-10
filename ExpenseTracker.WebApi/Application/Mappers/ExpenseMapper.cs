@@ -54,4 +54,12 @@ public static class ExpenseMapper
             e.ExpenseGroup?.Name ?? ""
         );
     }
+    
+    public static void MapUpdateToEntity(this ExpenseUpdateDto dto, Expense entity)
+    {
+        entity.Amount = dto.Amount;
+        entity.Description = dto.Description;
+        entity.TransactionDate = dto.Date;
+        entity.ExpenseGroupId = dto.ExpenseGroupId;
+    }
 }

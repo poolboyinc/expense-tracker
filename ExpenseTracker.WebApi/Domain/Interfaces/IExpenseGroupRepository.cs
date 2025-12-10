@@ -13,4 +13,6 @@ public interface IExpenseGroupRepository
     Task<ExpenseGroup> UpdateGroupAsync(ExpenseGroup group);
 
     Task DeleteGroupAsync(ExpenseGroup group);
+    
+    Task<bool> ExistsByNameAsync(string name, string userId);
 }
