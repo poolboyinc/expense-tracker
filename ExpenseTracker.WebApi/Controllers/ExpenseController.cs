@@ -29,7 +29,7 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
             parameters.PageSize
         );
 
-        return Ok(expenses.Select(e => e.ToListDto()));
+        return Ok(expenses);
     }
 
     [HttpGet("{id}")]
@@ -37,34 +37,29 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ExpenseDetailsDto>> GetExpenseById(int id)
     {
-        var userId = userServiceContext.GetCurrentUserId();
-
-        var expense = await expenseService.GetExpenseByIdAsync(id, userId);
+        var expense = await expenseService.GetExpenseByIdAsync(id);
 
         if (expense == null)
         {
             return NotFound("Expense was not found");
         }
 
-        return Ok(expense.ToDetailsDto());
+        return Ok(expense);
     }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<ActionResult<ExpenseDetailsDto>> CreateExpense([FromBody] ExpenseCreateDto dto)
     {
-        var userId = userServiceContext.GetCurrentUserId();
-
-        var newExpense = dto.ToEntity(userId);
-
+        
         try
         {
-            var created = await expenseService.CreateExpenseAsync(newExpense, userId);
+            var created = await expenseService.CreateExpenseAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetExpenseById),
                 new { id = created.Id },
-                created.ToDetailsDto()
+                created
             );
         }
         catch (InvalidOperationException ex)
@@ -78,13 +73,9 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseUpdateDto dto)
     {
-        var userId = userServiceContext.GetCurrentUserId();
-
-        var exp = dto.ToEntity(id, userId);
-
         try
         {
-            await expenseService.UpdateExpenseAsync(exp, userId);
+            await expenseService.UpdateExpenseAsync(dto);
             return NoContent();
         }
         catch (UnauthorizedAccessException)
@@ -105,7 +96,7 @@ public class ExpenseController(IExpenseService expenseService, IUserServiceConte
 
         try
         {
-            await expenseService.DeleteExpenseAsync(id, userId);
+            await expenseService.DeleteExpenseAsync(id);
             return NoContent();
         }
         catch (KeyNotFoundException)

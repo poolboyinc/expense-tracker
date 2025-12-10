@@ -1,22 +1,23 @@
-﻿using ExpenseTracker.WebApi.Domain.Entities;
+﻿using ExpenseTracker.WebApi.Application.DTOs.Expense;
+using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IExpenseService
 {
-    Task<Expense?> GetExpenseByIdAsync(int id, string userId); 
+    Task<ExpenseDetailsDto?> GetExpenseByIdAsync(int id); 
     
-    Task<Expense> CreateExpenseAsync(Expense expense, string userId);
+    Task<ExpenseDetailsDto> CreateExpenseAsync(ExpenseCreateDto dto);
     
-    Task<List<Expense>> GetFilteredExpensesAsync(
+    Task<List<ExpenseListDto>> GetFilteredExpensesAsync(
         string userId,
         int? groupId,
         string? searchTerm,
         int pageNumber,
         int pageSize);
 
-    Task UpdateExpenseAsync(Expense expense, string userId);
+    Task UpdateExpenseAsync(ExpenseUpdateDto dto);
     
-    Task DeleteExpenseAsync(int id, string userId);
+    Task DeleteExpenseAsync(int id);
 }
