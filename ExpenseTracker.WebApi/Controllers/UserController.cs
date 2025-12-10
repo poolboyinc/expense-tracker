@@ -19,11 +19,17 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<ActionResult<UserDto>> GetMe()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null) return Unauthorized();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
 
         var user = await userService.GetUserByIdAsync(userId);
 
-        if (user == null) return NotFound("User not found.");
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
 
         return Ok(UserMapper.ToDto(user));
     }
@@ -35,10 +41,16 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IActionResult> DeleteMe()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null) return Unauthorized();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
 
         var deleted = await userService.DeleteUserAsync(userId);
-        if (!deleted) return NotFound("User not found.");
+        if (!deleted)
+        {
+            return NotFound("User not found.");
+        }
 
         return NoContent();
     }

@@ -38,7 +38,9 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
         var group = await groupService.GetGroupByIdAsync(id, userId);
 
         if (group == null)
+        {
             return NotFound();
+        }
 
         return Ok(group.ToDetailsDto());
     }
@@ -73,7 +75,9 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
         var existing = await groupService.GetGroupByIdAsync(id, userId);
 
         if (existing == null)
+        {
             return NotFound("Expense group not found or unauthorized.");
+        }
 
         dto.MapToEntity(existing);
 
@@ -95,7 +99,9 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
             var deleted = await groupService.DeleteGroupAsync(id, userId);
 
             if (!deleted)
+            {
                 return NotFound();
+            }
 
             return NoContent();
         }

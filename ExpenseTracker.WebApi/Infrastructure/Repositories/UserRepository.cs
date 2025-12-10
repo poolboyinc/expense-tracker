@@ -33,14 +33,6 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await context.Users.AnyAsync(x => x.Id == userId);
     }
 
-    //Test endpoint - will be removed when done with every test
-    public async Task<List<User>> GetAllUsers()
-    {
-        var users = await context.Users.ToListAsync();
-        
-        return users;
-    }
-
     public async Task<bool> DeleteUserAsync(string id)
     {
         var userToDelete = await context.Users.FindAsync(id);

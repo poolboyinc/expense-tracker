@@ -33,7 +33,12 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     {
         var userId = userServiceContext.GetCurrentUserId();;
         var income = await incomeService.GetIncomeByIdAsync(id, userId);
-        if (income == null) return NotFound();
+        
+        if (income == null)
+        {
+            return NotFound();
+        }
+        
         return Ok(IncomeMapper.ToDto(income));
     }
 
@@ -43,7 +48,11 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> CreateIncome([FromBody] IncomeCreateDto dto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
         var userId = userServiceContext.GetCurrentUserId();
         var income = IncomeMapper.FromCreateDto(dto);
         var createdIncome = await incomeService.CreateIncomeAsync(income, userId);
@@ -56,10 +65,18 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> UpdateIncome(int id, [FromBody] IncomeUpdateDto dto)
     {
-        if (id != dto.Id || !ModelState.IsValid) return BadRequest();
+        if (id != dto.Id || !ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+        
         var userId = userServiceContext.GetCurrentUserId();
         var existingIncome = await incomeService.GetIncomeByIdAsync(id, userId);
-        if (existingIncome == null) return NotFound();
+
+        if (existingIncome == null)
+        {
+            return NotFound();
+        }
 
         IncomeMapper.UpdateEntity(existingIncome, dto);
         await incomeService.UpdateIncomeAsync(existingIncome, userId);
@@ -74,7 +91,12 @@ public class IncomeController(IIncomeService incomeService, IUserServiceContext 
     {
         var userId = userServiceContext.GetCurrentUserId();
         var deleted = await incomeService.DeleteIncomeAsync(id, userId);
-        if (!deleted) return NotFound();
+
+        if (!deleted)
+        {
+            return NotFound();
+        }
+        
         return NoContent();
     }
 }
