@@ -20,7 +20,7 @@ public static class IncomeMapper
 
     public static Income FromCreateDto(IncomeCreateDto dto)
     {
-        return new Income()
+        return new Income
         {
             Amount = dto.Amount,
             Description = dto.Description,

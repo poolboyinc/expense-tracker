@@ -5,9 +5,9 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class ExpenseMapper
 {
-    public static Expense ToEntity(this ExpenseCreateDto dto, string userId)
+    public static Expense ToEntity(this ExpenseCreateDto dto, Guid userId)
     {
-        return new Expense()
+        return new Expense
         {
             Amount = dto.Amount,
             Description = dto.Description,
@@ -17,9 +17,9 @@ public static class ExpenseMapper
         };
     }
 
-    public static Expense ToEntity(this ExpenseUpdateDto dto, int id, string userId)
+    public static Expense ToEntity(this ExpenseUpdateDto dto, int id, Guid userId)
     {
-        return new Expense()
+        return new Expense
         {
             Id = id,
             Amount = dto.Amount,
@@ -54,7 +54,7 @@ public static class ExpenseMapper
             e.ExpenseGroup?.Name ?? ""
         );
     }
-    
+
     public static void MapUpdateToEntity(this ExpenseUpdateDto dto, Expense entity)
     {
         entity.Amount = dto.Amount;

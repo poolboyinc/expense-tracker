@@ -7,7 +7,7 @@ namespace ExpenseTracker.WebApi.Infrastructure.Repositories;
 
 public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepository
 {
-    public async Task<Expense?> GetByIdAsync(int id, string userId)
+    public async Task<Expense?> GetByIdAsync(int id, Guid userId)
     {
         return await context.Expense
             .Include(e => e.ExpenseGroup)
@@ -40,7 +40,7 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
 
 
     public async Task<List<Expense>> GetExpensesAsync(
-        string userId,
+        Guid userId,
         int? groupId,
         string? searchTerm,
         int pageNumber,
@@ -68,12 +68,12 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
             .ToListAsync();
     }
 
-    public async Task<int> CountExpensesInGroupAsync(int groupId, string userId)
+    public async Task<int> CountExpensesInGroupAsync(int groupId, Guid userId)
     {
         return await context.Expense.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
     }
 
-    public async Task<List<Expense>> GetAllExpenses(string userId)
+    public async Task<List<Expense>> GetAllExpenses(Guid userId)
     {
         return await context.Expense
             .Where(e => e.UserId == userId)

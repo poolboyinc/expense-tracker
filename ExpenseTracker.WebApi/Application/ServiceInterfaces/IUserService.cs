@@ -4,11 +4,11 @@ namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
 
 public interface IUserService
 {
-    Task<UserDto?> GetUserByIdAsync(string id);
+    Task<UserDto?> GetUserByIdAsync(Guid id);
 
-    Task<bool> UserExistsAsync(string userId);
+    Task<bool> UserExistsAsync(Guid userId);
 
     Task<UserDto> UpdateUserAsync(UserDto dto);
 
-    Task<bool> DeleteUserAsync(string id);
+    Task<bool> DeleteUserAsync(Guid id);
 }

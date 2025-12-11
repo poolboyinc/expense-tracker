@@ -16,10 +16,11 @@ public class UsersController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDto>> GetMe()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!Guid.TryParse(userIdString, out var userId))
         {
-            return Unauthorized();
+            return Unauthorized("Invalid or missing user ID.");
         }
 
         var user = await userService.GetUserByIdAsync(userId);
@@ -38,13 +39,15 @@ public class UsersController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMe()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!Guid.TryParse(userIdString, out var userId))
         {
-            return Unauthorized();
+            return Unauthorized("Invalid or missing user ID.");
         }
 
         var deleted = await userService.DeleteUserAsync(userId);
+
         if (!deleted)
         {
             return NotFound("User not found.");

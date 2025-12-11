@@ -5,7 +5,7 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class UserServiceContext(IHttpContextAccessor httpContextAccessor) : IUserServiceContext
 {
-    public string GetCurrentUserId()
+    public Guid GetCurrentUserId()
     {
         var httpContext = httpContextAccessor.HttpContext;
 
@@ -14,11 +14,16 @@ public class UserServiceContext(IHttpContextAccessor httpContextAccessor) : IUse
             throw new UnauthorizedAccessException("User was not authenticated");
         }
 
-        var userId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdString = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userId))
+        if (userIdString == null)
         {
             throw new InvalidOperationException("User id was not found in token");
+        }
+
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            throw new InvalidOperationException("Invalid user id format in token");
         }
 
         return userId;

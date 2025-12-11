@@ -21,7 +21,7 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 
-    public async Task<List<Income>> GetAllIncomesByUserIdAsync(string userId)
+    public async Task<List<Income>> GetAllIncomesByUserIdAsync(Guid userId)
     {
         return await context.Income
             .Where(i => i.UserId == userId)

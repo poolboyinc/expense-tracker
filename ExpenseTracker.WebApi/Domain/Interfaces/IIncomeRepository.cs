@@ -8,7 +8,7 @@ public interface IIncomeRepository
 
     Task<Income?> GetIncomeByIdAsync(int id);
 
-    Task<List<Income>> GetAllIncomesByUserIdAsync(string userId);
+    Task<List<Income>> GetAllIncomesByUserIdAsync(Guid userId);
 
     Task<Income> UpdateIncomeAsync(Income income);
 

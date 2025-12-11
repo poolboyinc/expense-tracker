@@ -5,9 +5,9 @@ namespace ExpenseTracker.WebApi.Application.Mappers;
 
 public static class ExpenseGroupMapper
 {
-    public static ExpenseGroup ToEntity(this ExpenseGroupCreateDto dto, string userId)
+    public static ExpenseGroup ToEntity(this ExpenseGroupCreateDto dto, Guid userId)
     {
-        return new ExpenseGroup()
+        return new ExpenseGroup
         {
             UserId = userId,
             Name = dto.Name,

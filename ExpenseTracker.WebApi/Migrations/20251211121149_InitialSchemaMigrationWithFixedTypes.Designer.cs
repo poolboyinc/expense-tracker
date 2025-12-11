@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ExpenseTracker.WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251205130025_AddUserIdToAllGroupsAndSetCascadeDelete")]
-    partial class AddUserIdToAllGroupsAndSetCascadeDelete
+    [Migration("20251211121149_InitialSchemaMigrationWithFixedTypes")]
+    partial class InitialSchemaMigrationWithFixedTypes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,6 @@ namespace ExpenseTracker.WebApi.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("ExpenseGroupId")
@@ -49,9 +48,8 @@ namespace ExpenseTracker.WebApi.Migrations
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -59,7 +57,7 @@ namespace ExpenseTracker.WebApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expense");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ExpenseGroup", b =>
@@ -77,15 +75,14 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ExpenseGroups");
+                    b.ToTable("ExpenseGroup");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.Income", b =>
@@ -112,9 +109,8 @@ namespace ExpenseTracker.WebApi.Migrations
                     b.Property<bool>("IsScheduled")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -122,7 +118,7 @@ namespace ExpenseTracker.WebApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Incomes");
+                    b.ToTable("Income");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.IncomeGroup", b =>
@@ -137,20 +133,24 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IncomeGroups");
+                    b.ToTable("IncomeGroup");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.User", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsPremium")
@@ -160,9 +160,13 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.Expense", b =>
@@ -174,7 +178,7 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired();
 
                     b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", null)
-                        .WithMany()
+                        .WithMany("Expenses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -185,7 +189,7 @@ namespace ExpenseTracker.WebApi.Migrations
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ExpenseGroup", b =>
                 {
                     b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", null)
-                        .WithMany()
+                        .WithMany("ExpenseGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -200,7 +204,7 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired();
 
                     b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", null)
-                        .WithMany()
+                        .WithMany("Incomes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -211,7 +215,7 @@ namespace ExpenseTracker.WebApi.Migrations
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.IncomeGroup", b =>
                 {
                     b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", null)
-                        .WithMany()
+                        .WithMany("IncomeGroups")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -224,6 +228,17 @@ namespace ExpenseTracker.WebApi.Migrations
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.IncomeGroup", b =>
                 {
+                    b.Navigation("Incomes");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.User", b =>
+                {
+                    b.Navigation("ExpenseGroups");
+
+                    b.Navigation("Expenses");
+
+                    b.Navigation("IncomeGroups");
+
                     b.Navigation("Incomes");
                 });
 #pragma warning restore 612, 618

@@ -7,7 +7,7 @@ namespace ExpenseTracker.WebApi.Infrastructure.Repositories;
 
 public class UserRepository(ApplicationDbContext context) : IUserRepository
 {
-    public async Task<User?> GetUserById(string id)
+    public async Task<User?> GetUserById(Guid id)
     {
         return await context.User.FirstOrDefaultAsync(x => x.Id == id);
     }
@@ -28,12 +28,12 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return user;
     }
 
-    public async Task<bool> UserExistsAsync(string userId)
+    public async Task<bool> UserExistsAsync(Guid userId)
     {
         return await context.User.AnyAsync(x => x.Id == userId);
     }
 
-    public async Task<bool> DeleteUserAsync(string id)
+    public async Task<bool> DeleteUserAsync(Guid id)
     {
         var userToDelete = await context.User.FindAsync(id);
 

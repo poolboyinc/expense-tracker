@@ -67,7 +67,7 @@ public class ExpenseGroupService(
 
         return existingGroup.ToDetailsDto();
     }
-    
+
     public async Task<bool> DeleteGroupAsync(int id)
     {
         var userId = userServiceContext.GetCurrentUserId();
@@ -75,7 +75,9 @@ public class ExpenseGroupService(
         var existingGroup = await groupRepository.GetGroupByIdAsync(id, userId);
 
         if (existingGroup == null)
+        {
             return false;
+        }
 
         await groupRepository.DeleteGroupAsync(existingGroup);
 

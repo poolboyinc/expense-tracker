@@ -46,7 +46,7 @@ public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceCo
         return expense.ToDetailsDto();
     }
 
-    public async Task<List<ExpenseListDto>> GetFilteredExpensesAsync(string userId, int? groupId, string? searchTerm,
+    public async Task<List<ExpenseListDto>> GetFilteredExpensesAsync(Guid userId, int? groupId, string? searchTerm,
         int pageNumber, int pageSize)
     {
         var expenses = await expenseRepository.GetExpensesAsync(userId, groupId, searchTerm, pageNumber, pageSize);
@@ -76,7 +76,7 @@ public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceCo
                 throw new InvalidOperationException();
             }
         }
-        
+
         dto.MapUpdateToEntity(existingExpense);
 
         await expenseRepository.UpdateAsync(existingExpense);

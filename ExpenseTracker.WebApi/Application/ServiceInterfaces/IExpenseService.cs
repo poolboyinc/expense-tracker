@@ -9,7 +9,7 @@ public interface IExpenseService
     Task<ExpenseDetailsDto> CreateExpenseAsync(ExpenseCreateDto dto);
 
     Task<List<ExpenseListDto>> GetFilteredExpensesAsync(
-        string userId,
+        Guid userId,
         int? groupId,
         string? searchTerm,
         int pageNumber,

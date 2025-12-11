@@ -73,11 +73,6 @@ public class IncomeService(
     {
         var userId = userServiceContext.GetCurrentUserId();
 
-        if (userId == null)
-        {
-            throw new KeyNotFoundException("User with this ID not found.");
-        }
-
         var incomeGroup = await incomeRepository.GetIncomeByIdAsync(income.Id);
 
         if (incomeGroup == null)

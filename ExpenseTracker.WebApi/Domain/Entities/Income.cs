@@ -11,5 +11,5 @@ public class Income
     public int IncomeGroupId { get; set; }
     public IncomeGroup IncomeGroup { get; set; } = null!;
 
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 }

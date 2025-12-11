@@ -16,7 +16,7 @@ public static class UserMapper
 
     public static User ToEntity(this UserDto dto)
     {
-        return new User()
+        return new User
         {
             Id = dto.Id,
             Email = dto.Email,

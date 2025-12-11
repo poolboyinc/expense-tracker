@@ -7,7 +7,7 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<UserDto?> GetUserByIdAsync(string id)
+    public async Task<UserDto?> GetUserByIdAsync(Guid id)
     {
         var userEntity = await userRepository.GetUserById(id);
 
@@ -20,7 +20,7 @@ public class UserService(IUserRepository userRepository) : IUserService
     }
 
 
-    public Task<bool> UserExistsAsync(string userId)
+    public Task<bool> UserExistsAsync(Guid userId)
     {
         return userRepository.UserExistsAsync(userId);
     }
@@ -43,7 +43,7 @@ public class UserService(IUserRepository userRepository) : IUserService
     }
 
 
-    public async Task<bool> DeleteUserAsync(string id)
+    public async Task<bool> DeleteUserAsync(Guid id)
     {
         return await userRepository.DeleteUserAsync(id);
     }

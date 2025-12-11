@@ -16,5 +16,5 @@ public class Expense
 
     public bool IsScheduled { get; set; }
 
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
 }

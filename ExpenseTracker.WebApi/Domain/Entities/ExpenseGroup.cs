@@ -8,7 +8,7 @@ public class ExpenseGroup
 
     public decimal? MonthlyLimit { get; set; }
 
-    public required string UserId { get; set; } = string.Empty;
+    public required Guid UserId { get; set; }
 
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 }

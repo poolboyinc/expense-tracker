@@ -2,7 +2,7 @@
 
 public interface IUserServiceContext
 {
-    string GetCurrentUserId();
+    Guid GetCurrentUserId();
 
     bool IsAuthenticated();
 }

@@ -4,10 +4,10 @@ namespace ExpenseTracker.WebApi.Domain.Interfaces;
 
 public interface IUserRepository
 {
-    Task<User?> GetUserById(string id);
+    Task<User?> GetUserById(Guid id);
     Task<User> CreateUser(User user);
     Task<User> UpdateUser(User user);
-    Task<bool> UserExistsAsync(string userId);
-    Task<bool> DeleteUserAsync(string id);
+    Task<bool> UserExistsAsync(Guid userId);
+    Task<bool> DeleteUserAsync(Guid id);
     Task<User?> GetUserByEmailAsync(string email);
 }

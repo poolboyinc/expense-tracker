@@ -7,12 +7,12 @@ namespace ExpenseTracker.WebApi.Infrastructure.Repositories;
 
 public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGroupRepository
 {
-    public async Task<List<ExpenseGroup>> GetAllGroupsAsync(string userId)
+    public async Task<List<ExpenseGroup>> GetAllGroupsAsync(Guid userId)
     {
         return await context.ExpenseGroup.Where(g => g.UserId == userId).ToListAsync();
     }
 
-    public async Task<ExpenseGroup?> GetGroupByIdAsync(int id, string userId)
+    public async Task<ExpenseGroup?> GetGroupByIdAsync(int id, Guid userId)
     {
         return await context.ExpenseGroup.FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId);
     }
@@ -37,7 +37,7 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
         await context.SaveChangesAsync();
     }
 
-    public async Task<bool> ExistsByNameAsync(string name, string userId)
+    public async Task<bool> ExistsByNameAsync(string name, Guid userId)
     {
         return await context.ExpenseGroup
             .AnyAsync(g => g.UserId == userId &&
