@@ -18,5 +18,4 @@ public interface IExpenseRepository
         int pageSize
     );
 
-    Task<int> CountExpensesInGroupAsync(int groupId, Guid userId);
 }

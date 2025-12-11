@@ -68,11 +68,6 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
             .ToListAsync();
     }
 
-    public async Task<int> CountExpensesInGroupAsync(int groupId, Guid userId)
-    {
-        return await context.Expense.CountAsync(e => e.ExpenseGroupId == groupId && e.UserId == userId);
-    }
-
     public async Task<List<Expense>> GetAllExpenses(Guid userId)
     {
         return await context.Expense

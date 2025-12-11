@@ -36,11 +36,5 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
         context.ExpenseGroup.Remove(group);
         await context.SaveChangesAsync();
     }
-
-    public async Task<bool> ExistsByNameAsync(string name, Guid userId)
-    {
-        return await context.ExpenseGroup
-            .AnyAsync(g => g.UserId == userId &&
-                           g.Name.ToLower() == name.ToLower());
-    }
+    
 }

@@ -15,9 +15,9 @@ public class ExpenseGroupService(
         var userId = userServiceContext.GetCurrentUserId();
         var group = dto.ToEntity(userId);
 
-        var groupExists = await groupRepository.ExistsByNameAsync(group.Name, userId);
+        var groupExists = await groupRepository.GetGroupByIdAsync(group.Id, userId);
 
-        if (groupExists)
+        if (groupExists != null)
         {
             throw new InvalidOperationException(
                 $"Expense group with name '{group.Name}' already exists for this user.");
