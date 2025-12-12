@@ -13,4 +13,14 @@ public interface IExpenseGroupService
     Task<ExpenseGroupDetailsDto> UpdateGroupAsync(int id, ExpenseGroupUpdateDto dto);
 
     Task<bool> DeleteGroupAsync(int id);
+
+    Task<decimal> GetTotalExpensesForGroupThisMonthAsync(int groupId);
+
+    Task<decimal> GetTotalExpensesForGroupInRangeAsync(
+        int groupId,
+        DateTime from,
+        DateTime to);
+
+    Task<BudgetStatusDto> GetBudgetStatusAsync(int groupId);
+
 }

@@ -36,5 +36,32 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
         context.ExpenseGroup.Remove(group);
         await context.SaveChangesAsync();
     }
+
+    public async Task<decimal> GetTotalExpensesForGroupThisMonthAsync(int groupId, Guid userId)
+    {
+        var now = DateTime.UtcNow;
+
+        return await context.Expense
+            .Where(e => e.UserId == userId &&
+                        e.ExpenseGroupId == groupId &&
+                        e.TransactionDate.Year == now.Year &&
+                        e.TransactionDate.Month == now.Month)
+            .SumAsync(e => e.Amount);
+    }
     
+    public async Task<decimal> GetTotalExpensesForGroupInRangeAsync(
+        int groupId,
+        Guid userId,
+        DateTime from,
+        DateTime to)
+    {
+        return await context.Expense
+            .Where(e => e.UserId == userId &&
+                        e.ExpenseGroupId == groupId &&
+                        e.TransactionDate >= from &&
+                        e.TransactionDate <= to)
+            .SumAsync(e => e.Amount);
+    }
+
+
 }

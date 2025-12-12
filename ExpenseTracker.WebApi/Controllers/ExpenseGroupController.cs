@@ -35,6 +35,12 @@ public class ExpenseGroupsController(IExpenseGroupService groupService, IUserSer
 
         return Ok(group);
     }
+    
+    [HttpGet("{id}/budget-status")]
+    public async Task<ActionResult<BudgetStatusDto>> GetBudgetStatus(int id)
+    {
+        return Ok(await groupService.GetBudgetStatusAsync(id));
+    }
 
 
     [HttpPost]
