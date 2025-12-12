@@ -2,6 +2,7 @@ using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using ExpenseTracker.WebApi.Infrastructure.Configuration;
 using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
@@ -41,6 +42,9 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IScheduledExpenseService, ScheduledExpenseService>();
+
+builder.Services.Configure<ScheduledWorkerOptions>(
+    builder.Configuration.GetSection("ScheduledWorkerSettings"));
 
 builder.Services.AddHostedService<ScheduledExpenseWorker>();
 

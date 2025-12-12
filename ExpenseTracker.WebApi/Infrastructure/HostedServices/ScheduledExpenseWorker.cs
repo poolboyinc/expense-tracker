@@ -1,40 +1,37 @@
 ﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using ExpenseTracker.WebApi.Infrastructure.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace ExpenseTracker.WebApi.Infrastructure.HostedServices;
 
-public class ScheduledExpenseWorker : BackgroundService
+public class ScheduledExpenseWorker(
+    IServiceProvider serviceProvider,
+    ILogger<ScheduledExpenseWorker> logger,
+    IOptions<ScheduledWorkerOptions> options)
+    : BackgroundService
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<ScheduledExpenseWorker> _logger;
-    private readonly TimeSpan _interval;
-
-    public ScheduledExpenseWorker(IServiceProvider serviceProvider, ILogger<ScheduledExpenseWorker> logger, IConfiguration config)
-    {
-        _serviceProvider = serviceProvider;
-        _logger = logger;
-        _interval = TimeSpan.FromMinutes(5); 
-    }
+    private readonly TimeSpan _interval = TimeSpan.FromSeconds(options.Value.IntervalSeconds);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("ScheduledExpenseWorker started.");
+        logger.LogInformation("ScheduledExpenseWorker started.");
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                using var scope = _serviceProvider.CreateScope();
+                using var scope = serviceProvider.CreateScope();
                 var svc = scope.ServiceProvider.GetRequiredService<IScheduledExpenseService>();
                 var created = await svc.ProcessDueScheduledExpensesAsync(DateTime.UtcNow);
                 if (created > 0)
                 {
-                    _logger.LogInformation("ScheduledExpenseWorker created {Count} expenses.", created);
+                    logger.LogInformation("ScheduledExpenseWorker created {Count} expenses.", created);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ScheduledExpenseWorker error");
+                logger.LogError(ex, "ScheduledExpenseWorker error");
             }
-
             await Task.Delay(_interval, stoppingToken);
         }
     }
