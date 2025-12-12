@@ -43,6 +43,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddScoped<IScheduledExpenseService, ScheduledExpenseService>();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
 

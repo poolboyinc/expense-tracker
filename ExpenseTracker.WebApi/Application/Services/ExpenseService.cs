@@ -5,7 +5,11 @@ using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class ExpenseService(IExpenseRepository expenseRepository, IExpenseGroupRepository groupRepository,IUserServiceContext userServiceContext)
+public class ExpenseService(IExpenseRepository expenseRepository, 
+    IExpenseGroupRepository groupRepository,
+    IUserServiceContext userServiceContext,
+    IUserRepository userRepository,
+    IEmailService emailService)
     : IExpenseService
 {
     public async Task<ExpenseDetailsDto?> GetExpenseByIdAsync(int id)
@@ -32,6 +36,12 @@ public class ExpenseService(IExpenseRepository expenseRepository, IExpenseGroupR
         }
 
         var userId = userServiceContext.GetCurrentUserId();
+        var user = await userRepository.GetUserById(userId);
+
+        if (user == null)
+        {
+            throw new InvalidOperationException($"User with ID {userId} not found.");
+        }
 
         var expense = dto.ToEntity(userId);
 
@@ -51,6 +61,24 @@ public class ExpenseService(IExpenseRepository expenseRepository, IExpenseGroupR
             {
                 throw new InvalidOperationException(
                     $"Monthly limit exceeded. Limit = {group.MonthlyLimit}, total = {newTotal}");
+            }
+           
+            if (newTotal == group.MonthlyLimit.Value &&
+                group.BudgetCapNotified == false &&
+                user.IsPremium)
+            {
+                var subject = $"Budget Limit Reached for {group.Name}";
+                var body = $@"
+            <h2>Budget Cap Reached</h2>
+            <p>You have reached your monthly budget cap for the group <strong>{group.Name}</strong>.</p>
+            <p>Limit: <strong>{group.MonthlyLimit}</strong></p>
+            <p>Total spent: <strong>{newTotal}</strong></p>
+            <p>Keep tracking your expenses for better control!</p>";
+
+                await emailService.SendEmailAsync(user.Email, subject, body);
+
+                group.BudgetCapNotified = true;
+                await groupRepository.UpdateGroupAsync(group);
             }
         }
 

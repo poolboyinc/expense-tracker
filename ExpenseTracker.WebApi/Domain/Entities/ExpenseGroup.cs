@@ -9,6 +9,8 @@ public class ExpenseGroup
     public decimal? MonthlyLimit { get; set; }
 
     public required Guid UserId { get; set; }
+    
+    public bool BudgetCapNotified { get; set; }
 
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
     
