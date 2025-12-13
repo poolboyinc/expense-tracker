@@ -16,5 +16,7 @@ public class User
     public ICollection<Income> Incomes { get; set; } = new List<Income>();
     
     public ICollection<ScheduledExpense> ScheduledExpenses { get; set; } = new List<ScheduledExpense>();
-
+    
+    public ICollection<SavingsPlan> SavingsPlans { get; set; } = new List<SavingsPlan>();
+    
 }

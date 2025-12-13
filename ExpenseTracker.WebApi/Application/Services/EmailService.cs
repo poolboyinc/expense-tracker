@@ -1,6 +1,6 @@
-﻿using System.Net;
-using System.Net.Mail;
-using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using MailKit.Net.Smtp;
+using MimeKit;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
@@ -25,16 +25,35 @@ public class EmailService(IConfiguration config) : IEmailService
         var from = config["Email:From"]
                    ?? throw new InvalidOperationException("Email:From missing");
 
+        
+        var message = new MimeMessage();
+        
+        message.From.Add(new MailboxAddress("Expense Tracker", from));
+        message.To.Add(new MailboxAddress("", to));
+        message.Subject = subject;
+        
+        var bodyBuilder = new BodyBuilder { HtmlBody = body };
+        message.Body = bodyBuilder.ToMessageBody();
+        
+        using var client = new SmtpClient();
 
-        using var client = new SmtpClient(host, port);
-        client.Credentials = new NetworkCredential(username, password);
-        client.EnableSsl = true;
-
-        var message = new MailMessage(from!, to, subject, body)
+        try
         {
-            IsBodyHtml = true 
-        };
 
-        await client.SendMailAsync(message);
+            await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.StartTls); 
+            
+            await client.AuthenticateAsync(username, password);
+            
+            await client.SendAsync(message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending email: {ex.Message}");
+            throw;
+        }
+        finally
+        {
+            await client.DisconnectAsync(true);
+        }
     }
 }

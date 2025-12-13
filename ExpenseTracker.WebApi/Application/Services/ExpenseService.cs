@@ -64,8 +64,7 @@ public class ExpenseService(IExpenseRepository expenseRepository,
             }
            
             if (newTotal == group.MonthlyLimit.Value &&
-                group.BudgetCapNotified == false &&
-                user.IsPremium)
+                group.BudgetCapNotified == false)
             {
                 var subject = $"Budget Limit Reached for {group.Name}";
                 var body = $@"
