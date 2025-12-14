@@ -75,4 +75,15 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
             .Include(e => e.ExpenseGroup)
             .ToListAsync();
     }
+    
+    public async Task<decimal> GetTotalForMonthAsync(Guid userId, int year, int month)
+    {
+        return await context.Expense
+            .Where(e =>
+                e.UserId == userId &&
+                e.TransactionDate.Year == year &&
+                e.TransactionDate.Month == month)
+            .SumAsync(e => e.Amount);
+    }
+
 }

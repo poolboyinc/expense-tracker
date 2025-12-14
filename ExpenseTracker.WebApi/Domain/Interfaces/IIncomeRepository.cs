@@ -13,4 +13,10 @@ public interface IIncomeRepository
     Task<Income> UpdateIncomeAsync(Income income);
 
     Task<bool> DeleteIncomeAsync(int id);
+    
+    Task<decimal> GetAverageMonthlyIncomeAsync(Guid userId);
+    
+    Task<decimal> GetTotalIncomeForMonthAsync(Guid userId, int year, int month);
+
+
 }

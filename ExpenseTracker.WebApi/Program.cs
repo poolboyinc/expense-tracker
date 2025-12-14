@@ -29,6 +29,8 @@ builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
 
 builder.Services.AddScoped<IScheduledExpenseRepository, ScheduledExpenseRepository>();
 
+builder.Services.AddScoped<ISavingsPlanRepository, SavingsPlanRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -44,6 +46,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IScheduledExpenseService, ScheduledExpenseService>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<ISavingsPlanService, SavingsPlanService>();
+
+builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
+
 
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
