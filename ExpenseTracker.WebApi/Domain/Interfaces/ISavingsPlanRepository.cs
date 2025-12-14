@@ -9,4 +9,6 @@ public interface ISavingsPlanRepository
     Task<SavingsPlan> CreateAsync(SavingsPlan plan);
     Task UpdateAsync(SavingsPlan plan);
     Task DeleteAsync(SavingsPlan plan);
+    Task<List<SavingsPlan>> GetAllActiveAsync();
+
 }

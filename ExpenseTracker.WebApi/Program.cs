@@ -51,11 +51,16 @@ builder.Services.AddScoped<ISavingsPlanService, SavingsPlanService>();
 
 builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
 
+builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
 
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
 
 builder.Services.AddHostedService<ScheduledExpenseWorker>();
+
+builder.Services.AddHostedService<MonthlyBudgetResetWorker>();
+
+builder.Services.AddHostedService<SavingsPlanWorker>();
 
 builder.Services.AddHttpContextAccessor();
 

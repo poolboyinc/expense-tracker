@@ -8,7 +8,8 @@ namespace ExpenseTracker.WebApi.Application.Services;
 public class ExpenseService(IExpenseRepository expenseRepository, 
     IExpenseGroupRepository groupRepository,
     IUserServiceContext userServiceContext,
-    IUserRepository userRepository,
+    IUserRepository userRepository, 
+    ISavingsAvailabilityService savingsAvailabilityService,
     IEmailService emailService)
     : IExpenseService
 {
@@ -44,10 +45,11 @@ public class ExpenseService(IExpenseRepository expenseRepository,
         }
 
         var expense = dto.ToEntity(userId);
-
-        if (group == null)
+        
+        if (!await savingsAvailabilityService.CanSpendAsync(userId, dto.Amount))
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(
+                "Expense blocked due to active savings plan requirements.");
         }
         
         if (group.MonthlyLimit != null)

@@ -8,4 +8,5 @@ public interface ISavingsPlanService
     Task<IReadOnlyCollection<SavingsPlanDto>> GetAllAsync();
     Task<SavingsPlanDto?> GetByIdAsync(int id);
     Task DeleteAsync(int id);
+    Task ProcessMonthlyContributionsAsync();
 }

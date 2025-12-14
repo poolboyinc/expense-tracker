@@ -9,7 +9,9 @@ public class SavingsPlanService(
     ISavingsPlanRepository repository,
     ISavingsPlanCalculator calculator,
     IUserRepository userRepository,
-    IUserServiceContext userServiceContext
+    IUserServiceContext userServiceContext,
+    IIncomeRepository incomeRepository,
+    IExpenseRepository expenseRepository
     )
     : ISavingsPlanService
 {
@@ -73,4 +75,63 @@ public class SavingsPlanService(
 
         await repository.DeleteAsync(plan);
     }
+    
+    public async Task ProcessMonthlyContributionsAsync()
+    {
+        var now = DateTime.UtcNow;
+        var year = now.Year;
+        var month = now.Month;
+
+        var plans = await repository.GetAllActiveAsync(); 
+
+        foreach (var plan in plans)
+        {
+            await ProcessPlanForMonthAsync(plan, year, month);
+        }
+    }
+    
+    private async Task ProcessPlanForMonthAsync(
+        SavingsPlan plan,
+        int year,
+        int month)
+    {
+        var contribution = plan.Contributions
+            .FirstOrDefault(c => c.Year == year && c.Month == month);
+
+        if (contribution == null || contribution.IsCompleted)
+        {
+            return;
+        }
+
+        var income = await incomeRepository
+            .GetTotalIncomeForMonthAsync(plan.UserId, year, month);
+
+        var expenses = await expenseRepository
+            .GetTotalForMonthAsync(plan.UserId, year, month);
+
+        var available = income - expenses;
+
+        if (available < contribution.PlannedAmount)
+        {
+            plan.IsActive = false;
+            await repository.UpdateAsync(plan);
+            return;
+        }
+
+        contribution.ActualAmount = contribution.PlannedAmount;
+        contribution.IsCompleted = true;
+
+        var totalSaved = plan.Contributions
+            .Where(c => c.IsCompleted)
+            .Sum(c => c.ActualAmount);
+
+        if (totalSaved >= plan.TargetAmount)
+        {
+            plan.IsActive = false;
+        }
+
+        await repository.UpdateAsync(plan);
+    }
+
+
 }

@@ -63,5 +63,18 @@ public class ExpenseGroupRepository(ApplicationDbContext context) : IExpenseGrou
             .SumAsync(e => e.Amount);
     }
 
+    public async Task ResetBudgetCapNotificationsAsync()
+    {
+        var groups = await context.ExpenseGroup
+            .Where(g => g.BudgetCapNotified == true)
+            .ToListAsync();
+
+        foreach (var g in groups)
+        {
+            g.BudgetCapNotified = false;
+        }
+
+        await context.SaveChangesAsync();
+    }
 
 }

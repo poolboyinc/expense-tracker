@@ -21,4 +21,7 @@ public interface IExpenseGroupRepository
         Guid userId,
         DateTime from,
         DateTime to);
+    
+    Task ResetBudgetCapNotificationsAsync();
+
 }

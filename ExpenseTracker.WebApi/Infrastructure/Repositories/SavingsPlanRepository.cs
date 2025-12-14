@@ -35,6 +35,15 @@ public class SavingsPlanRepository(ApplicationDbContext context) : ISavingsPlanR
         context.SavingsPlan.Update(plan);
         await context.SaveChangesAsync();
     }
+    
+    public async Task<List<SavingsPlan>> GetAllActiveAsync()
+    {
+        return await context.SavingsPlan
+            .Include(p => p.Contributions)
+            .Where(p => p.IsActive)
+            .ToListAsync();
+    }
+
 
     public async Task DeleteAsync(SavingsPlan plan)
     {
