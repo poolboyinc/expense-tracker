@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTracker.WebApi.Controllers;
 
-[Authorize]
+[Authorize(Policy = "Premium")]
 [ApiController]
 [Route("api/[controller]")]
 public class SavingsPlanController(ISavingsPlanService savingsPlanService) : ControllerBase

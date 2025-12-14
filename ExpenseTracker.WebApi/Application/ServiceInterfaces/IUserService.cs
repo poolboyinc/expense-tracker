@@ -11,4 +11,6 @@ public interface IUserService
     Task<UserDto> UpdateUserAsync(UserDto dto);
 
     Task<bool> DeleteUserAsync(Guid id);
+    Task<UpgradeToPremiumDto> UpgradeToPremiumAsync();
+    Task DowngradeFromPremiumAsync();
 }
