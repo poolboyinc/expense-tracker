@@ -29,6 +29,8 @@ builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
 
 builder.Services.AddScoped<IScheduledExpenseRepository, ScheduledExpenseRepository>();
 
+builder.Services.AddScoped<IScheduledIncomeRepository, ScheduledIncomeRepository>();
+
 builder.Services.AddScoped<ISavingsPlanRepository, SavingsPlanRepository>();
 
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
@@ -53,6 +55,8 @@ builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
 
 builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
 
+builder.Services.AddScoped<IScheduledIncomeService, ScheduledIncomeService>();
+
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
 
@@ -61,6 +65,8 @@ builder.Services.AddHostedService<ScheduledExpenseWorker>();
 builder.Services.AddHostedService<MonthlyBudgetResetWorker>();
 
 builder.Services.AddHostedService<SavingsPlanWorker>();
+
+builder.Services.AddHostedService<ScheduledIncomeWorker>();
 
 builder.Services.AddHttpContextAccessor();
 

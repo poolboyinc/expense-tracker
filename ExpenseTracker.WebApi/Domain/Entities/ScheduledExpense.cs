@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.WebApi.Domain.Enums;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using ExpenseTracker.WebApi.Domain.Enums;
 
 namespace ExpenseTracker.WebApi.Domain.Entities;
 
@@ -6,7 +7,7 @@ namespace ExpenseTracker.WebApi.Domain.Entities;
 
 
 
-public class ScheduledExpense
+public class ScheduledExpense : IRecurring
 {
     public int Id { get; set; }
 

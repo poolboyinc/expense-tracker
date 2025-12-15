@@ -1,21 +1,23 @@
-﻿using ExpenseTracker.WebApi.Domain.Entities;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Enums;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
 public static class RecurrenceCalculator
 {
-    public static DateTime? ComputeNextRun(ScheduledExpense s)
+    public static DateTime? ComputeNextRun(IRecurring r)
     {
-        var current = s.NextRunAt;
-        return s.Frequency switch
+        var current = r.NextRunAt;
+
+        return r.Frequency switch
         {
             RecurrenceFrequency.Once => null,
             RecurrenceFrequency.Daily => current.AddDays(1),
             RecurrenceFrequency.Weekly => current.AddDays(7),
             RecurrenceFrequency.Monthly =>
-                s.DayOfMonth.HasValue
-                    ? NextMonthDay(current, s.DayOfMonth.Value)
+                r.DayOfMonth.HasValue
+                    ? NextMonthDay(current, r.DayOfMonth.Value)
                     : current.AddMonths(1),
             _ => null
         };
@@ -25,9 +27,15 @@ public static class RecurrenceCalculator
     {
         var next = baseDate.AddMonths(1);
         var daysInMonth = DateTime.DaysInMonth(next.Year, next.Month);
-        var safeDay = Math.Min(dayOfMonth, daysInMonth);
+        var day = Math.Min(dayOfMonth, daysInMonth);
 
-        return new DateTime(next.Year, next.Month, safeDay,
-            baseDate.Hour, baseDate.Minute, baseDate.Second, DateTimeKind.Utc);
+        return new DateTime(
+            next.Year,
+            next.Month,
+            day,
+            baseDate.Hour,
+            baseDate.Minute,
+            baseDate.Second,
+            DateTimeKind.Utc);
     }
 }

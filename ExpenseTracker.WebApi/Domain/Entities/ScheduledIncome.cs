@@ -1,8 +1,9 @@
-﻿using ExpenseTracker.WebApi.Domain.Enums;
+﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using ExpenseTracker.WebApi.Domain.Enums;
 
 namespace ExpenseTracker.WebApi.Domain.Entities;
 
-public class ScheduledIncome
+public class ScheduledIncome : IRecurring
 {
     public int Id { get; set; }
 
@@ -12,7 +13,7 @@ public class ScheduledIncome
     public DateTime NextRunAt { get; set; }
     public DateTime? EndAt { get; set; }
 
-    public IncomeRecurrenceFrequency Frequency { get; set; } = IncomeRecurrenceFrequency.Monthly;
+    public RecurrenceFrequency Frequency { get; set; } = RecurrenceFrequency.Monthly;
 
     public int? DayOfWeek { get; set; }
     public int? DayOfMonth { get; set; }
