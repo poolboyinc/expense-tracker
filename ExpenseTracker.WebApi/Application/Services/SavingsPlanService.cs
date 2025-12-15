@@ -133,7 +133,7 @@ public class SavingsPlanService(
             {
                 await emailService.SendEmailAsync(
                     plan.User.Email,
-                    "🎯 Savings goal achieved!",
+                    " Savings goal achieved!",
                     $"""
                      <h2>Congratulations!</h2>
                      <p>You’ve successfully reached your savings goal of <strong>{plan.TargetAmount:C}</strong>.</p>

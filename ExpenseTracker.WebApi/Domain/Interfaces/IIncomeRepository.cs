@@ -17,6 +17,9 @@ public interface IIncomeRepository
     Task<decimal> GetAverageMonthlyIncomeAsync(Guid userId);
     
     Task<decimal> GetTotalIncomeForMonthAsync(Guid userId, int year, int month);
-
-
+    
+    Task<decimal> GetTotalIncomeForRangeAsync(
+        Guid userId,
+        DateTime from,
+        DateTime to);
 }

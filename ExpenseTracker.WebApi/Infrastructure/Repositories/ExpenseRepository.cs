@@ -86,4 +86,13 @@ public class ExpenseRepository(ApplicationDbContext context) : IExpenseRepositor
             .SumAsync(e => e.Amount);
     }
 
+    public async Task<decimal> GetTotalForRangeAsync(Guid userId, DateTime from, DateTime to)
+    {
+        return await context.Expense
+            .Where(e =>
+                e.UserId == userId &&
+                e.TransactionDate >= from &&
+                e.TransactionDate <= to)
+            .SumAsync(e => e.Amount);
+    }
 }

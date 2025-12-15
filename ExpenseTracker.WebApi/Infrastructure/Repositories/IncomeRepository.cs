@@ -63,6 +63,20 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
             .SumAsync(i => i.Amount);
     }
 
+    
+    public async Task<decimal> GetTotalIncomeForRangeAsync(
+        Guid userId,
+        DateTime from,
+        DateTime to)
+    {
+        return await context.Income
+            .Where(i =>
+                i.UserId == userId &&
+                i.Date >= from &&
+                i.Date <= to)
+            .SumAsync(i => i.Amount);
+    }
+
 
 
     public async Task<bool> DeleteIncomeAsync(int id)

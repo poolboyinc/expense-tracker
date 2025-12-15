@@ -71,6 +71,8 @@ builder.Services.AddHostedService<SavingsPlanWorker>();
 
 builder.Services.AddHostedService<ScheduledIncomeWorker>();
 
+builder.Services.AddHostedService<SummaryEmailWorker>();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUserServiceContext, UserServiceContext>();

@@ -12,6 +12,11 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         return await context.User.FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<List<User>> GetAllAsync()
+    {
+        return await context.User.ToListAsync();
+    }
+
     public async Task<User> CreateUser(User user)
     {
         await context.User.AddAsync(user);
