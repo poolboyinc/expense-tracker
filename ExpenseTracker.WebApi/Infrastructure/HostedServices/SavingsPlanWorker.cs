@@ -1,19 +1,34 @@
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using ExpenseTracker.WebApi.Infrastructure.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace ExpenseTracker.WebApi.Infrastructure.HostedServices;
 
 public class SavingsPlanWorker(
     IServiceScopeFactory scopeFactory,
-    ILogger<SavingsPlanWorker> logger)
+    ILogger<SavingsPlanWorker> logger,
+    IOptions<SavingsPlanWorkerOptions> options)
     : BackgroundService
 {
+    private readonly TimeSpan _interval =
+        TimeSpan.FromHours(options.Value.IntervalHours);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation("SavingsPlanWorker started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            await ProcessSavingsPlansAsync(stoppingToken);
+            try
+            {
+                await ProcessSavingsPlansAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Unhandled error in SavingsPlanWorker");
+            }
 
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+            await Task.Delay(_interval, stoppingToken);
         }
     }
 
@@ -24,13 +39,6 @@ public class SavingsPlanWorker(
         var savingsService = scope.ServiceProvider
             .GetRequiredService<ISavingsPlanService>();
 
-        try
-        {
-            await savingsService.ProcessMonthlyContributionsAsync();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error while processing savings plans");
-        }
+        await savingsService.ProcessMonthlyContributionsAsync(DateTime.UtcNow);
     }
 }

@@ -11,7 +11,8 @@ public class SavingsPlanService(
     IUserRepository userRepository,
     IUserServiceContext userServiceContext,
     IIncomeRepository incomeRepository,
-    IExpenseRepository expenseRepository
+    IExpenseRepository expenseRepository,
+    IEmailService emailService
     )
     : ISavingsPlanService
 {
@@ -76,13 +77,12 @@ public class SavingsPlanService(
         await repository.DeleteAsync(plan);
     }
     
-    public async Task ProcessMonthlyContributionsAsync()
+    public async Task ProcessMonthlyContributionsAsync(DateTime now)
     {
-        var now = DateTime.UtcNow;
         var year = now.Year;
         var month = now.Month;
 
-        var plans = await repository.GetAllActiveAsync(); 
+        var plans = await repository.GetAllActiveAsync();
 
         foreach (var plan in plans)
         {
@@ -128,6 +128,21 @@ public class SavingsPlanService(
         if (totalSaved >= plan.TargetAmount)
         {
             plan.IsActive = false;
+            
+            if (!plan.GoalReachedNotified && plan.User.IsPremium)
+            {
+                await emailService.SendEmailAsync(
+                    plan.User.Email,
+                    "🎯 Savings goal achieved!",
+                    $"""
+                     <h2>Congratulations!</h2>
+                     <p>You’ve successfully reached your savings goal of <strong>{plan.TargetAmount:C}</strong>.</p>
+                     <p>Target date: {plan.TargetDate:MMMM yyyy}</p>
+                     """
+                );
+
+                plan.GoalReachedNotified = true;
+            }
         }
 
         await repository.UpdateAsync(plan);

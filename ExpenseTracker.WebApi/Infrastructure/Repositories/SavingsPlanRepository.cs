@@ -39,7 +39,8 @@ public class SavingsPlanRepository(ApplicationDbContext context) : ISavingsPlanR
     public async Task<List<SavingsPlan>> GetAllActiveAsync()
     {
         return await context.SavingsPlan
-            .Include(p => p.Contributions)
+            .Include(p => p.Contributions).
+            Include(p => p.User)
             .Where(p => p.IsActive)
             .ToListAsync();
     }

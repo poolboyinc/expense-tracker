@@ -15,4 +15,7 @@ public class SavingsPlan
     
     public ICollection<SavingsPlanContribution> Contributions { get; set; }
         = new List<SavingsPlanContribution>();
+    
+    public bool GoalReachedNotified { get; set; }
+
 }

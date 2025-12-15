@@ -60,6 +60,9 @@ builder.Services.AddScoped<IScheduledIncomeService, ScheduledIncomeService>();
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
 
+builder.Services.Configure<SavingsPlanWorkerOptions>(
+    builder.Configuration.GetSection("SavingsPlanWorker"));
+
 builder.Services.AddHostedService<ScheduledExpenseWorker>();
 
 builder.Services.AddHostedService<MonthlyBudgetResetWorker>();
