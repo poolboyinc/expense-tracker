@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> User { get; set; }
     
     public DbSet<ScheduledExpense> ScheduledExpense { get; set; }
+    public DbSet<ScheduledIncome> ScheduledIncome { get; set; }
     
     public DbSet<SavingsPlan> SavingsPlan { get; set; }
     public DbSet<SavingsPlanContribution> SavingsPlanContribution { get; set; }
@@ -94,6 +95,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<SavingsPlanContribution>()
             .HasIndex(c => new { c.SavingsPlanId, c.Year, c.Month })
             .IsUnique();
+        
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.User)
+            .WithMany(u => u.ScheduledIncomes)
+            .HasForeignKey(si => si.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.IncomeGroup)
+            .WithMany(g => g.ScheduledIncomes)
+            .HasForeignKey(si => si.IncomeGroupId)
+            .IsRequired();
 
     }
 }

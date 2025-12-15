@@ -19,4 +19,7 @@ public class User
     
     public ICollection<SavingsPlan> SavingsPlans { get; set; } = new List<SavingsPlan>();
     
+    public ICollection<ScheduledIncome> ScheduledIncomes { get; set; }
+        = new List<ScheduledIncome>();
+    
 }
