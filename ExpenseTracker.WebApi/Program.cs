@@ -2,6 +2,8 @@ using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using ExpenseTracker.WebApi.Infrastructure.Configuration;
+using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,6 +27,8 @@ builder.Services.AddScoped<IIncomeRepository, IncomeRepository>();
 
 builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
 
+builder.Services.AddScoped<IScheduledExpenseRepository, ScheduledExpenseRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -36,6 +40,13 @@ builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IScheduledExpenseService, ScheduledExpenseService>();
+
+builder.Services.Configure<ScheduledWorkerOptions>(
+    builder.Configuration.GetSection("ScheduledWorkerSettings"));
+
+builder.Services.AddHostedService<ScheduledExpenseWorker>();
 
 builder.Services.AddHttpContextAccessor();
 
