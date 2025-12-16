@@ -36,6 +36,48 @@ public class IncomeRepository(ApplicationDbContext context) : IIncomeRepository
         await context.SaveChangesAsync();
         return income;
     }
+    
+    public async Task<decimal> GetAverageMonthlyIncomeAsync(Guid userId)
+    {
+        var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
+
+        var incomes = await context.Income
+            .Where(i => i.UserId == userId && i.Date >= sixMonthsAgo)
+            .ToListAsync();
+
+        if (!incomes.Any())
+        {
+            return 0;
+        }
+
+        return incomes.Sum(i => i.Amount) / 6;
+    }
+    
+    public async Task<decimal> GetTotalIncomeForMonthAsync(Guid userId, int year, int month)
+    {
+        return await context.Income
+            .Where(i =>
+                i.UserId == userId &&
+                i.Date.Year == year &&
+                i.Date.Month == month)
+            .SumAsync(i => i.Amount);
+    }
+
+    
+    public async Task<decimal> GetTotalIncomeForRangeAsync(
+        Guid userId,
+        DateTime from,
+        DateTime to)
+    {
+        return await context.Income
+            .Where(i =>
+                i.UserId == userId &&
+                i.Date >= from &&
+                i.Date <= to)
+            .SumAsync(i => i.Amount);
+    }
+
+
 
     public async Task<bool> DeleteIncomeAsync(int id)
     {
