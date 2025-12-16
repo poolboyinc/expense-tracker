@@ -12,6 +12,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<IncomeGroup> IncomeGroup { get; set; }
 
     public DbSet<User> User { get; set; }
+    
+    public DbSet<ScheduledIncome> ScheduledIncome { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,5 +60,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(g => g.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.User)
+            .WithMany(u => u.ScheduledIncomes)
+            .HasForeignKey(si => si.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.IncomeGroup)
+            .WithMany(g => g.ScheduledIncomes)
+            .HasForeignKey(si => si.IncomeGroupId)
+            .IsRequired();
     }
 }
