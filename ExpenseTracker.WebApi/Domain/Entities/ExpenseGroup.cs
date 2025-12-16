@@ -11,4 +11,6 @@ public class ExpenseGroup
     public required Guid UserId { get; set; }
 
     public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+    
+    public ICollection<ScheduledExpense> ScheduledExpenses { get; set; } = new List<ScheduledExpense>();
 }
