@@ -5,7 +5,9 @@ using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 
-public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceContext userServiceContext)
+public class ExpenseService(IExpenseRepository expenseRepository, 
+    IUserServiceContext userServiceContext,
+    IUserRepository userRepository)
     : IExpenseService
 {
     public async Task<ExpenseDetailsDto?> GetExpenseByIdAsync(int id)
@@ -32,14 +34,14 @@ public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceCo
         }
 
         var userId = userServiceContext.GetCurrentUserId();
+        var user = await userRepository.GetUserById(userId);
 
-        var expense = dto.ToEntity(userId);
-
-        if (group == null)
+        if (user == null)
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException($"User with ID {userId} not found.");
         }
 
+        var expense = dto.ToEntity(userId);
 
         await expenseRepository.AddAsync(expense);
 
@@ -55,32 +57,33 @@ public class ExpenseService(IExpenseRepository expenseRepository, IUserServiceCo
 
         return expenseListDtos;
     }
+public async Task UpdateExpenseAsync(ExpenseUpdateDto dto)
+{
+    var userId = userServiceContext.GetCurrentUserId();
 
-    public async Task UpdateExpenseAsync(ExpenseUpdateDto dto)
+    var existingExpense = await expenseRepository.GetByIdAsync(dto.Id, userId);
+
+    if (existingExpense == null || existingExpense.UserId != userId)
     {
-        var userId = userServiceContext.GetCurrentUserId();
-
-        var existingExpense = await expenseRepository.GetByIdAsync(dto.Id, userId);
-
-        if (existingExpense == null || existingExpense.UserId != userId)
-        {
-            throw new UnauthorizedAccessException();
-        }
-
-        if (existingExpense.ExpenseGroupId != dto.ExpenseGroupId)
-        {
-            var group = await expenseRepository.GetGroupByIdAsync(dto.ExpenseGroupId);
-
-            if (group == null)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        dto.MapUpdateToEntity(existingExpense);
-
-        await expenseRepository.UpdateAsync(existingExpense);
+        throw new UnauthorizedAccessException();
     }
+    
+    var expenseGroupId = dto.ExpenseGroupId;
+    
+    if (existingExpense.ExpenseGroupId != dto.ExpenseGroupId)
+    {
+        var newGroup = await expenseRepository.GetGroupByIdAsync(dto.ExpenseGroupId);
+
+        if (newGroup == null)
+        {
+            throw new InvalidOperationException($"Expense group with ID {dto.ExpenseGroupId} not found.");
+        }
+    }
+
+    dto.MapUpdateToEntity(existingExpense);
+
+    await expenseRepository.UpdateAsync(existingExpense);
+}
 
 
     public async Task DeleteExpenseAsync(int id)
