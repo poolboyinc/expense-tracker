@@ -83,4 +83,40 @@ public class ExpenseGroupService(
 
         return true;
     }
+
+    public async Task<decimal> GetTotalExpensesForGroupThisMonthAsync(int groupId)
+    {
+        var userId =  userServiceContext.GetCurrentUserId();
+        return await  groupRepository.GetTotalExpensesForGroupThisMonthAsync(groupId, userId);
+    }
+
+    public async Task<decimal> GetTotalExpensesForGroupInRangeAsync(int groupId, DateTime from, DateTime to)
+    {
+        var userId = userServiceContext.GetCurrentUserId();
+        return await groupRepository.GetTotalExpensesForGroupInRangeAsync(groupId, userId, from, to);
+    }
+    
+    public async Task<BudgetStatusDto> GetBudgetStatusAsync(int groupId)
+    {
+        var userId = userServiceContext.GetCurrentUserId();
+        var group = await groupRepository.GetGroupByIdAsync(groupId, userId);
+
+        if (group == null)
+        {
+            throw new KeyNotFoundException();
+        }
+
+        var spent = await groupRepository
+            .GetTotalExpensesForGroupThisMonthAsync(groupId, userId);
+
+        var limit = group.MonthlyLimit;
+
+        return new BudgetStatusDto(
+            limit,
+            spent,
+            limit.HasValue ? limit.Value - spent : 0,
+            limit.HasValue && spent > limit.Value
+        );
+    }
+
 }

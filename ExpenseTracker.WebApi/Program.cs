@@ -2,6 +2,8 @@ using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using ExpenseTracker.WebApi.Infrastructure.Configuration;
+using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,6 +27,8 @@ builder.Services.AddScoped<IIncomeRepository, IncomeRepository>();
 
 builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
 
+builder.Services.AddScoped<ISavingsPlanRepository, SavingsPlanRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -36,6 +40,19 @@ builder.Services.AddScoped<IIncomeService, IncomeService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<ISavingsPlanService, SavingsPlanService>();
+
+builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
+
+builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
+
+builder.Services.Configure<SavingsPlanWorkerOptions>(
+    builder.Configuration.GetSection("SavingsPlanWorker"));
+
+builder.Services.AddHostedService<MonthlyBudgetResetWorker>();
+
+builder.Services.AddHostedService<SavingsPlanWorker>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -55,6 +72,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Premium", policy =>
+        policy.RequireClaim("is_premium", "true"));
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

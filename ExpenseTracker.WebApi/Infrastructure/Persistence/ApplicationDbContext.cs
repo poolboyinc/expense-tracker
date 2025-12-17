@@ -12,6 +12,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<IncomeGroup> IncomeGroup { get; set; }
 
     public DbSet<User> User { get; set; }
+    
+    public DbSet<SavingsPlan> SavingsPlan { get; set; }
+    public DbSet<SavingsPlanContribution> SavingsPlanContribution { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,5 +61,24 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(g => g.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<SavingsPlan>()
+            .HasOne(sp => sp.User)
+            .WithMany(u => u.SavingsPlans)
+            .HasForeignKey(sp => sp.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SavingsPlanContribution>()
+            .HasOne(c => c.SavingsPlan)
+            .WithMany(sp => sp.Contributions)
+            .HasForeignKey(c => c.SavingsPlanId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<SavingsPlanContribution>()
+            .HasIndex(c => new { c.SavingsPlanId, c.Year, c.Month })
+            .IsUnique();
+
     }
 }
