@@ -2,6 +2,7 @@ using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,6 +38,10 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddHostedService<SummaryEmailWorker>();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUserServiceContext, UserServiceContext>();
@@ -55,6 +60,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Premium", policy =>
+        policy.RequireClaim("is_premium", "true"));
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
