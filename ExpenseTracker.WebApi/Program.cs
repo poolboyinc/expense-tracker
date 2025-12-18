@@ -33,6 +33,8 @@ builder.Services.AddScoped<IScheduledIncomeRepository, ScheduledIncomeRepository
 
 builder.Services.AddScoped<ISavingsPlanRepository, SavingsPlanRepository>();
 
+builder.Services.AddScoped<IIncomeGroupRepository, IncomeGroupRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -56,6 +58,8 @@ builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
 builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
 
 builder.Services.AddScoped<IScheduledIncomeService, ScheduledIncomeService>();
+
+builder.Services.AddScoped<IIncomeGroupService, IncomeGroupService>();
 
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
