@@ -8,7 +8,9 @@ namespace ExpenseTracker.WebApi.Application.Services;
 
 public class IncomeService(
     IIncomeRepository incomeRepository,
-    IUserServiceContext userServiceContext)
+    IUserServiceContext userServiceContext,
+    IIncomeGroupRepository incomeGroupRepository
+    )
     : IIncomeService
 {
     public async Task<IncomeDto> CreateIncomeAsync(IncomeCreateDto dto)
@@ -71,9 +73,7 @@ public class IncomeService(
 
     private async Task ValidateIncomeDataAsync(Income income)
     {
-        var userId = userServiceContext.GetCurrentUserId();
-
-        var incomeGroup = await incomeRepository.GetIncomeByIdAsync(income.Id);
+        var incomeGroup = await incomeGroupRepository.GetByIdAsync(income.Id);
 
         if (incomeGroup == null)
         {
