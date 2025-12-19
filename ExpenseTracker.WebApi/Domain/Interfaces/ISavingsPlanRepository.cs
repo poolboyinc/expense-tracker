@@ -11,4 +11,8 @@ public interface ISavingsPlanRepository
     Task DeleteAsync(SavingsPlan plan);
     Task<List<SavingsPlan>> GetAllActiveAsync();
 
+    Task<decimal> GetRequiredSavingsSumAsync(Guid userId, int year, int month);
+
+    Task<decimal> GetTotalSavedAsync(int planId);
+
 }

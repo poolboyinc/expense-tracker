@@ -121,9 +121,7 @@ public class SavingsPlanService(
         contribution.ActualAmount = contribution.PlannedAmount;
         contribution.IsCompleted = true;
 
-        var totalSaved = plan.Contributions
-            .Where(c => c.IsCompleted)
-            .Sum(c => c.ActualAmount);
+        var totalSaved = await repository.GetTotalSavedAsync(plan.Id);
 
         if (totalSaved >= plan.TargetAmount)
         {

@@ -19,13 +19,7 @@ public class SavingsAvailabilityService(
         var expenses = await expenseRepository.GetTotalForMonthAsync(
             userId, now.Year, now.Month);
 
-        var activePlans = await savingsPlanRepository.GetAllAsync(userId);
-
-        var requiredSavings = activePlans
-            .Where(p => p.IsActive)
-            .SelectMany(p => p.Contributions)
-            .Where(c => c.Year == now.Year && c.Month == now.Month && !c.IsCompleted)
-            .Sum(c => c.PlannedAmount);
+        var requiredSavings = await savingsPlanRepository.GetRequiredSavingsSumAsync(userId, now.Year, now.Month);
 
         var available = income - expenses - requiredSavings;
 

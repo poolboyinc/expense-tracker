@@ -22,6 +22,8 @@ public class SavingsPlanRepository(ApplicationDbContext context) : ISavingsPlanR
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
     }
+    
+    
 
     public async Task<SavingsPlan> CreateAsync(SavingsPlan plan)
     {
@@ -45,6 +47,21 @@ public class SavingsPlanRepository(ApplicationDbContext context) : ISavingsPlanR
             .ToListAsync();
     }
 
+    public async Task<decimal> GetRequiredSavingsSumAsync(Guid userId, int year, int month)
+    {
+        return await context.SavingsPlan
+            .Where(p => p.UserId == userId && p.IsActive)
+            .SelectMany(p => p.Contributions)
+            .Where(c => c.Year == year && c.Month == month && !c.IsCompleted)
+            .SumAsync(c => c.PlannedAmount);
+    }
+
+    public async Task<decimal> GetTotalSavedAsync(int planId)
+    {
+        return await context.SavingsPlanContribution
+            .Where(c => c.SavingsPlanId == planId && c.IsCompleted)
+            .SumAsync(c => c.ActualAmount);
+    }
 
     public async Task DeleteAsync(SavingsPlan plan)
     {
