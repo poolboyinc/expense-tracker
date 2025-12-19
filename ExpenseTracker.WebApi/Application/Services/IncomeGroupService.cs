@@ -1,4 +1,5 @@
 ﻿using ExpenseTracker.WebApi.Application.DTOs.IncomeGroup;
+using ExpenseTracker.WebApi.Application.Mappers;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
 using ExpenseTracker.WebApi.Domain.Interfaces;
@@ -11,14 +12,13 @@ public class IncomeGroupService(
 {
     public async Task<IncomeGroupDto> CreateAsync(IncomeGroupCreateDto dto)
     {
-        var group = new IncomeGroup
-        {
-            Name = dto.Name,
-            UserId = userServiceContext.GetCurrentUserId()
-        };
+        var userId = userServiceContext.GetCurrentUserId();
+
+        var group = dto.ToEntity(userId);
 
         await repository.CreateAsync(group);
-        return new IncomeGroupDto(group.Id, group.Name);
+
+        return group.ToDto();
     }
 
     public async Task<IncomeGroupDto?> GetByIdAsync(int id)
@@ -31,7 +31,8 @@ public class IncomeGroupService(
     {
         var userId = userServiceContext.GetCurrentUserId();
         var groups = await repository.GetAllByUserIdAsync(userId);
-        return groups.Select(g => new IncomeGroupDto(g.Id, g.Name)).ToList();
+        
+        return groups.ToDtoList();
     }
 
     public async Task UpdateAsync(int id, IncomeGroupUpdateDto dto)
