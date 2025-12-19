@@ -36,15 +36,9 @@ public class SavingsPlanService(
             DateTime.UtcNow,
             dto.TargetDate
         );
-
-        var plan = new SavingsPlan
-        {
-            UserId = userId,
-            TargetAmount = dto.TargetAmount,
-            TargetDate = dto.TargetDate,
-            Contributions = contributions.ToList()
-        };
-
+        
+        var plan = dto.ToEntity(userId, contributions);
+        
         await repository.CreateAsync(plan);
 
         return plan.ToDto();
