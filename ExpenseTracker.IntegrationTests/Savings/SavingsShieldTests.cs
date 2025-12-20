@@ -89,4 +89,28 @@ public class SavingsShieldTests : IntegrationTestBase
 
         Context.Expense.Should().Contain(e => e.Amount == 500);
     }
+    
+    [Fact]
+    public async Task CreateExpense_ShouldFail_WhenMultipleSavingsPlansExist()
+    {
+        var user = new User { Id = TestUserId, Email = "multi@test.com", IsPremium = true };
+        Context.User.Add(user);
+        
+        Context.Income.Add(new Income { UserId = TestUserId, Amount = 5000, Date = DateTime.UtcNow });
+        
+        Context.SavingsPlan.Add(new SavingsPlan { 
+            UserId = TestUserId, TargetAmount = 12000, TargetDate = DateTime.UtcNow.AddYears(1), IsActive = true 
+        });
+        
+        Context.SavingsPlan.Add(new SavingsPlan { 
+            UserId = TestUserId, TargetAmount = 24000, TargetDate = DateTime.UtcNow.AddYears(1), IsActive = true 
+        });
+
+        await Context.SaveChangesAsync();
+        
+        var dto = new ExpenseCreateDto(2500, "Should Fail", DateTime.UtcNow, 1);
+        Func<Task> act = async () => await _expenseService.CreateExpenseAsync(dto);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }
