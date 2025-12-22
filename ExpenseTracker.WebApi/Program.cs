@@ -1,6 +1,7 @@
 using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
+using ExpenseTracker.WebApi.Application.Services.Caching;
 using ExpenseTracker.WebApi.Domain.Interfaces;
 using ExpenseTracker.WebApi.Infrastructure.Configuration;
 using ExpenseTracker.WebApi.Infrastructure.HostedServices;
@@ -8,6 +9,7 @@ using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +41,17 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 
-builder.Services.AddScoped<IExpenseGroupService, ExpenseGroupService>();
+builder.Services.AddScoped<ExpenseGroupService>();
+
+builder.Services.AddScoped<IExpenseGroupService>(provider =>
+{
+    var realService = provider.GetRequiredService<ExpenseGroupService>();
+    
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    var userContext = provider.GetRequiredService<IUserServiceContext>();
+    
+    return new CachedExpenseGroupService(realService, cache, userContext);
+});
 
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 
@@ -54,6 +66,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISavingsPlanService, SavingsPlanService>();
 
 builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
+
+builder.Services.AddMemoryCache();
 
 builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
 
