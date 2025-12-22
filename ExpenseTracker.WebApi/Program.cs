@@ -73,7 +73,17 @@ builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityServi
 
 builder.Services.AddScoped<IScheduledIncomeService, ScheduledIncomeService>();
 
-builder.Services.AddScoped<IIncomeGroupService, IncomeGroupService>();
+builder.Services.AddScoped<IncomeGroupService>();
+
+builder.Services.AddScoped<IIncomeGroupService>(provider =>
+{
+    var realService = provider.GetRequiredService<IncomeGroupService>();
+    
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    var userContext = provider.GetRequiredService<IUserServiceContext>();
+    
+    return new CachedIncomeGroupService(realService, cache, userContext);
+});
 
 builder.Services.Configure<ScheduledWorkerOptions>(
     builder.Configuration.GetSection("ScheduledWorkerSettings"));
