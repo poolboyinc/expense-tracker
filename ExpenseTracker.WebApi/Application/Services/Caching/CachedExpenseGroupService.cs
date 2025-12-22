@@ -9,9 +9,6 @@ public class CachedExpenseGroupService(
     IMemoryCache cache, 
     IUserServiceContext userServiceContext) : IExpenseGroupService
 {
-    private string GetCacheKey(string suffix) => 
-        $"groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
-
     public async Task<List<ExpenseGroupListDto>> GetAllGroupsForUserAsync()
     {
         string key = GetCacheKey("all");
@@ -49,27 +46,43 @@ public class CachedExpenseGroupService(
     public async Task<ExpenseGroupDetailsDto> CreateGroupAsync(ExpenseGroupCreateDto dto)
     {
         var result = await inner.CreateGroupAsync(dto);
+
+        string key = GetCacheKey($"id_{result.Id}");
+
+        cache.Set(key, result, TimeSpan.FromMinutes(15));
+        
         InvalidateCache(); 
+        
         return result;
     }
 
     public async Task<ExpenseGroupDetailsDto> UpdateGroupAsync(int id, ExpenseGroupUpdateDto dto)
     {
         var result = await inner.UpdateGroupAsync(id, dto);
+        
+        string key = GetCacheKey($"id_{result.Id}");
+        
+        cache.Set(key, result, TimeSpan.FromMinutes(15));
+        
         InvalidateCache(id);
+        
         return result;
     }
 
     public async Task<bool> DeleteGroupAsync(int id)
     {
         var result = await inner.DeleteGroupAsync(id);
-        if (result) InvalidateCache(id);
+        
+        if (result)
+        {
+            InvalidateCache(id);
+        }
+
         return result;
     }
 
     private void InvalidateCache(int? groupId = null)
     {
-        var userId = userServiceContext.GetCurrentUserId();
         cache.Remove(GetCacheKey("all"));
         if (groupId.HasValue)
         {
@@ -83,4 +96,7 @@ public class CachedExpenseGroupService(
 
     public Task<decimal> GetTotalExpensesForGroupInRangeAsync(int groupId, DateTime from, DateTime to) 
         => inner.GetTotalExpensesForGroupInRangeAsync(groupId, from, to);
+    
+    private string GetCacheKey(string suffix) => 
+        $"groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
 }
