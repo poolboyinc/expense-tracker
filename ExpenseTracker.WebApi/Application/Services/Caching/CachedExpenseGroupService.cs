@@ -90,13 +90,19 @@ public class CachedExpenseGroupService(
             cache.Remove(GetCacheKey($"budget_{groupId}"));
         }
     }
-    
-    public Task<decimal> GetTotalExpensesForGroupThisMonthAsync(int groupId) 
-        => inner.GetTotalExpensesForGroupThisMonthAsync(groupId);
 
-    public Task<decimal> GetTotalExpensesForGroupInRangeAsync(int groupId, DateTime from, DateTime to) 
-        => inner.GetTotalExpensesForGroupInRangeAsync(groupId, from, to);
-    
-    private string GetCacheKey(string suffix) => 
-        $"groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
+    public Task<decimal> GetTotalExpensesForGroupThisMonthAsync(int groupId)
+    {
+        return inner.GetTotalExpensesForGroupThisMonthAsync(groupId);
+    }
+
+    public Task<decimal> GetTotalExpensesForGroupInRangeAsync(int groupId, DateTime from, DateTime to)
+    {
+        return inner.GetTotalExpensesForGroupInRangeAsync(groupId, from, to);
+    }
+
+    private string GetCacheKey(string suffix)
+    {
+        return $"groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
+    }
 }

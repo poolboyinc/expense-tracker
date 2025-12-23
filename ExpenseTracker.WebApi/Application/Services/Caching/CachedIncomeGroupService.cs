@@ -73,6 +73,8 @@ public class CachedIncomeGroupService(
         }
     }
 
-    private string GetCacheKey(string suffix) =>
-        $"income_groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
+    private string GetCacheKey(string suffix)
+    {
+        return $"income_groups_{userServiceContext.GetCurrentUserId()}_{suffix}";
+    }
 }
