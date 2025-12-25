@@ -2,9 +2,10 @@
 using ExpenseTracker.WebApi.Application.DTOs.User;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ExpenseTracker.WebApi.Controllers;
+namespace ExpenseTracker.WebApi.Application.Controllers;
 
 [Authorize]
 [ApiController]

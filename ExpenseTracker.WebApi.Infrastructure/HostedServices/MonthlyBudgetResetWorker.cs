@@ -1,4 +1,6 @@
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace ExpenseTracker.WebApi.Infrastructure.HostedServices;
 

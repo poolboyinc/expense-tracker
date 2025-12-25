@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ExpenseTracker.WebApi.Application.Services;

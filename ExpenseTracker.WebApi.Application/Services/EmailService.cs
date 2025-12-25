@@ -1,6 +1,7 @@
 ﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using MailKit.Net.Smtp;
 using MimeKit;
+using Microsoft.Extensions.Configuration;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 

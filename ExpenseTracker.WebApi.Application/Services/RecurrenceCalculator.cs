@@ -1,6 +1,5 @@
-﻿using ExpenseTracker.WebApi.Application.ServiceInterfaces;
-using ExpenseTracker.WebApi.Domain.Entities;
-using ExpenseTracker.WebApi.Domain.Enums;
+﻿using ExpenseTracker.WebApi.Domain.Enums;
+using ExpenseTracker.WebApi.Domain.Interfaces;
 
 namespace ExpenseTracker.WebApi.Application.Services;
 

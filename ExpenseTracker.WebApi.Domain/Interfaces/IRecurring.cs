@@ -1,6 +1,6 @@
 ﻿using ExpenseTracker.WebApi.Domain.Enums;
 
-namespace ExpenseTracker.WebApi.Application.ServiceInterfaces;
+namespace ExpenseTracker.WebApi.Domain.Interfaces;
 
 public interface IRecurring
 {

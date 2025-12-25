@@ -1,8 +1,9 @@
 ﻿using ExpenseTracker.WebApi.Application.DTOs.Auth;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ExpenseTracker.WebApi.Controllers;
+namespace ExpenseTracker.WebApi.Application.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

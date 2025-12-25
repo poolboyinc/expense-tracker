@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.WebApi.Domain.Entities;
+﻿
+using ExpenseTracker.WebApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.WebApi.Infrastructure.Persistence;
