@@ -3,7 +3,7 @@ using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
 using ExpenseTracker.WebApi.Application.Services.Caching;
 using ExpenseTracker.WebApi.Domain.Interfaces;
-using ExpenseTracker.WebApi.Infrastructure.Configuration;
+using ExpenseTracker.WebApi.Infrastructure.DependencyInjection;
 using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,21 +86,22 @@ builder.Services.AddScoped<IIncomeGroupService>(provider =>
     return new CachedIncomeGroupService(realService, cache, userContext);
 });
 
-builder.Services.Configure<ScheduledWorkerOptions>(
-    builder.Configuration.GetSection("ScheduledWorkerSettings"));
+builder.Services.AddQuartz(q =>
+{
 
-builder.Services.Configure<SavingsPlanWorkerOptions>(
-    builder.Configuration.GetSection("SavingsPlanWorker"));
+    q.AddJobAndTrigger<MonthlyBudgetResetJob>("0 0 0 1 * ?");
 
-builder.Services.AddHostedService<ScheduledExpenseWorker>();
+    q.AddJobAndTrigger<SavingsPlanJob>("0 0 1 * * ?");
 
-builder.Services.AddHostedService<MonthlyBudgetResetWorker>();
+    q.AddJobAndTrigger<SummaryEmailJob>("0 0 8 * * ?");
 
-builder.Services.AddHostedService<SavingsPlanWorker>();
+    q.AddJobAndTrigger<ScheduledTransactionsJob>("0 * * * * ?");
+});
 
-builder.Services.AddHostedService<ScheduledIncomeWorker>();
-
-builder.Services.AddHostedService<SummaryEmailWorker>();
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddHttpContextAccessor();
 
