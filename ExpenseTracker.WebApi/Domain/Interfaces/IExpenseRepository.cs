@@ -18,4 +18,10 @@ public interface IExpenseRepository
         int pageSize
     );
 
+    Task<decimal> GetTotalForMonthAsync(Guid userId, int year, int month);
+    
+    Task<decimal> GetTotalForRangeAsync(
+        Guid userId,
+        DateTime from,
+        DateTime to);
 }

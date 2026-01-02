@@ -1,12 +1,17 @@
 using System.Text;
 using ExpenseTracker.WebApi.Application.ServiceInterfaces;
 using ExpenseTracker.WebApi.Application.Services;
+using ExpenseTracker.WebApi.Application.Services.Caching;
 using ExpenseTracker.WebApi.Domain.Interfaces;
+using ExpenseTracker.WebApi.Infrastructure.DependencyInjection;
+using ExpenseTracker.WebApi.Infrastructure.HostedServices;
 using ExpenseTracker.WebApi.Infrastructure.Persistence;
 using ExpenseTracker.WebApi.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,17 +30,78 @@ builder.Services.AddScoped<IIncomeRepository, IncomeRepository>();
 
 builder.Services.AddScoped<IExpenseGroupRepository, ExpenseGroupRepository>();
 
+builder.Services.AddScoped<IScheduledExpenseRepository, ScheduledExpenseRepository>();
+
+builder.Services.AddScoped<IScheduledIncomeRepository, ScheduledIncomeRepository>();
+
+builder.Services.AddScoped<ISavingsPlanRepository, SavingsPlanRepository>();
+
+builder.Services.AddScoped<IIncomeGroupRepository, IncomeGroupRepository>();
+
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 
-builder.Services.AddScoped<IExpenseGroupService, ExpenseGroupService>();
+builder.Services.AddScoped<ExpenseGroupService>();
+
+builder.Services.AddScoped<IExpenseGroupService>(provider =>
+{
+    var realService = provider.GetRequiredService<ExpenseGroupService>();
+    
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    var userContext = provider.GetRequiredService<IUserServiceContext>();
+    
+    return new CachedExpenseGroupService(realService, cache, userContext);
+});
 
 builder.Services.AddScoped<IIncomeService, IncomeService>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IScheduledExpenseService, ScheduledExpenseService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<ISavingsPlanService, SavingsPlanService>();
+
+builder.Services.AddScoped<ISavingsPlanCalculator, SavingsPlanCalculator>();
+
+builder.Services.AddMemoryCache();
+
+builder.Services.AddScoped<ISavingsAvailabilityService, SavingsAvailabilityService>();
+
+builder.Services.AddScoped<IScheduledIncomeService, ScheduledIncomeService>();
+
+builder.Services.AddScoped<IncomeGroupService>();
+
+builder.Services.AddScoped<IIncomeGroupService>(provider =>
+{
+    var realService = provider.GetRequiredService<IncomeGroupService>();
+    
+    var cache = provider.GetRequiredService<IMemoryCache>();
+    var userContext = provider.GetRequiredService<IUserServiceContext>();
+    
+    return new CachedIncomeGroupService(realService, cache, userContext);
+});
+
+builder.Services.AddQuartz(q =>
+{
+
+    q.AddJobAndTrigger<MonthlyBudgetResetJob>("0 0 0 1 * ?");
+
+    q.AddJobAndTrigger<SavingsPlanJob>("0 0 1 * * ?");
+
+    q.AddJobAndTrigger<SummaryEmailJob>("0 0 8 * * ?");
+
+    q.AddJobAndTrigger<ScheduledTransactionsJob>("0 * * * * ?");
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddHttpContextAccessor();
 
@@ -55,6 +121,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Premium", policy =>
+        policy.RequireClaim("is_premium", "true"));
+});
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

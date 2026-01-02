@@ -55,4 +55,21 @@ public class UsersController(IUserService userService) : ControllerBase
 
         return NoContent();
     }
+    
+
+    [HttpPost("me/premium")]
+    public async Task<IActionResult> UpgradeToPremium()
+    {
+        await userService.UpgradeToPremiumAsync();
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("me/premium")]
+    public async Task<IActionResult> DowngradeFromPremium()
+    {
+        await userService.DowngradeFromPremiumAsync();
+        return NoContent();
+    }
+
 }

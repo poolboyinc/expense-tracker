@@ -65,6 +65,9 @@ namespace ExpenseTracker.WebApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("BudgetCapNotified")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal?>("MonthlyLimit")
                         .HasColumnType("numeric");
 
@@ -138,6 +141,174 @@ namespace ExpenseTracker.WebApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("IncomeGroup");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.SavingsPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("GoalReachedNotified")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("TargetAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("TargetDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SavingsPlan");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.SavingsPlanContribution", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("ActualAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PlannedAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("SavingsPlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SavingsPlanId", "Year", "Month")
+                        .IsUnique();
+
+                    b.ToTable("SavingsPlanContribution");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ScheduledExpense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DayOfMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExpenseGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Frequency")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("NextRunAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpenseGroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ScheduledExpense");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ScheduledIncome", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DayOfMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("DayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("EndAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Frequency")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IncomeGroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("NextRunAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IncomeGroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ScheduledIncome");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.User", b =>
@@ -218,14 +389,83 @@ namespace ExpenseTracker.WebApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.SavingsPlan", b =>
+                {
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", "User")
+                        .WithMany("SavingsPlans")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.SavingsPlanContribution", b =>
+                {
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.SavingsPlan", "SavingsPlan")
+                        .WithMany("Contributions")
+                        .HasForeignKey("SavingsPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SavingsPlan");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ScheduledExpense", b =>
+                {
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.ExpenseGroup", "ExpenseGroup")
+                        .WithMany("ScheduledExpenses")
+                        .HasForeignKey("ExpenseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", "User")
+                        .WithMany("ScheduledExpenses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExpenseGroup");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ScheduledIncome", b =>
+                {
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.IncomeGroup", "IncomeGroup")
+                        .WithMany("ScheduledIncomes")
+                        .HasForeignKey("IncomeGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExpenseTracker.WebApi.Domain.Entities.User", "User")
+                        .WithMany("ScheduledIncomes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("IncomeGroup");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.ExpenseGroup", b =>
                 {
                     b.Navigation("Expenses");
+
+                    b.Navigation("ScheduledExpenses");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.IncomeGroup", b =>
                 {
                     b.Navigation("Incomes");
+
+                    b.Navigation("ScheduledIncomes");
+                });
+
+            modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.SavingsPlan", b =>
+                {
+                    b.Navigation("Contributions");
                 });
 
             modelBuilder.Entity("ExpenseTracker.WebApi.Domain.Entities.User", b =>
@@ -237,6 +477,12 @@ namespace ExpenseTracker.WebApi.Migrations
                     b.Navigation("IncomeGroups");
 
                     b.Navigation("Incomes");
+
+                    b.Navigation("SavingsPlans");
+
+                    b.Navigation("ScheduledExpenses");
+
+                    b.Navigation("ScheduledIncomes");
                 });
 #pragma warning restore 612, 618
         }

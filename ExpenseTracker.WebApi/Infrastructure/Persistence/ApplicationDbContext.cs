@@ -12,6 +12,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<IncomeGroup> IncomeGroup { get; set; }
 
     public DbSet<User> User { get; set; }
+    
+    public DbSet<ScheduledExpense> ScheduledExpense { get; set; }
+    public DbSet<ScheduledIncome> ScheduledIncome { get; set; }
+    
+    public DbSet<SavingsPlan> SavingsPlan { get; set; }
+    public DbSet<SavingsPlanContribution> SavingsPlanContribution { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -58,5 +64,49 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(g => g.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<ScheduledExpense>()
+            .HasOne(se => se.User)
+            .WithMany(u => u.ScheduledExpenses)
+            .HasForeignKey(se => se.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ScheduledExpense>()
+            .HasOne(se => se.ExpenseGroup)
+            .WithMany(g => g.ScheduledExpenses)
+            .HasForeignKey(se => se.ExpenseGroupId)
+            .IsRequired();
+        
+        modelBuilder.Entity<SavingsPlan>()
+            .HasOne(sp => sp.User)
+            .WithMany(u => u.SavingsPlans)
+            .HasForeignKey(sp => sp.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<SavingsPlanContribution>()
+            .HasOne(c => c.SavingsPlan)
+            .WithMany(sp => sp.Contributions)
+            .HasForeignKey(c => c.SavingsPlanId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<SavingsPlanContribution>()
+            .HasIndex(c => new { c.SavingsPlanId, c.Year, c.Month })
+            .IsUnique();
+        
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.User)
+            .WithMany(u => u.ScheduledIncomes)
+            .HasForeignKey(si => si.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ScheduledIncome>()
+            .HasOne(si => si.IncomeGroup)
+            .WithMany(g => g.ScheduledIncomes)
+            .HasForeignKey(si => si.IncomeGroupId)
+            .IsRequired();
+
     }
 }
